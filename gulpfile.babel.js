@@ -20,7 +20,7 @@ import {log,colors} from 'gulp-util';
 
 // npm install babel-preset-es2015 babel-plugin-transform-decorators-legacy babel-loader babel-core babel-preset-env gulp gulp-uglify gulp-watch-path gulp-rename gulp-if gulp-concat webpack webpack-stream vinyl-named gulp-plumber gulp-util --save-dev
 
-gulp.task('default', ['watch'])
+gulp.task('default', ['watch','watchSass'])
 
 
 gulp.task('watch', ()=> {
@@ -62,30 +62,26 @@ gulp.task('hello',()=>{
 })
 
 import sass from 'gulp-sass'
+import autoprefixer from 'autoprefixer'
+import cssnano from 'cssnano'
+import atImport from 'postcss-import'
+import postcss from 'gulp-postcss'
 gulp.task('sass',()=>{
-	gulp.src('sass/**/*.scss')
+	gulp.src('include/sass/*.scss')
 		.pipe(sass({outputStyle:'compressed'})
 			.on('error',sass.logError))
-		.pipe(gulp.dest('sass/css'))
+		// .pipe(gulp.dest('sass/css/'))
+		.pipe(postcss([
+			atImport,
+			autoprefixer({
+				browsers:['>10%']
+			}),
+			cssnano
+		]))
+		.pipe(rename({suffix: '.min'}))
+		.pipe(gulp.dest('include/'))
 })
 
 gulp.task('watchSass',()=>{
-	gulp.watch('sass/**/*.scss',['sass'])
+	gulp.watch('include/sass/*.scss',['sass'])
 })
-
-// import autoprefixer from 'autoprefixer'
-// import cssnano from 'cssnano'
-// import atImport from 'postcss-import'
-// import postcss from 'gulp-postcss'
-
-// gulp.task('postcss',()=>{
-// 	gulp.src('css/**/*.css')
-// 		.pipe(postcss([
-// 			atImport,
-// 			autoprefixer({
-// 				browsers:['>0%']
-// 			}),
-// 			cssnano
-// 		]))
-// 		.pipe(gulp.dest('css/postcss'))
-// })
