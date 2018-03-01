@@ -24,10 +24,10 @@ gulp.task('default', ['watch','watchSass'])
 
 
 gulp.task('watch', ()=> {
-	gulp.watch('include/*.js', function(event) {
-		let paths = watchPath(event, 'include', 'include/min')
+	gulp.watch('include/es6Modules/*.js', function(event) {
+		let paths = watchPath(event, 'include/es6Modules', 'include/min')
 		paths.es5 = 'include/es5/'
-		gulp.src(paths.srcPath)
+		gulp.src('include/es6Modules/netwizard_new.js')
 			.pipe(plumber({
 				errorHandle:function(){
 

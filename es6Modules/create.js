@@ -1,4 +1,96 @@
 class Create {
+	createStepPanel(data){
+		let self = this
+		let content = "数据有误"
+		let contentData = data.stepdetail[`step${data.step}`]
+		let panel ={
+			step1(){
+				content = self.createRadio(contentData)
+			},
+			step2(){
+				panel.step1()
+			},
+			step3(){
+				content = ''
+				contentData = contentData.options
+				for (let i = 0; i < contentData.length; i++) {
+				    if (contentData[i].type === 'text') {
+				    	content += self.createText(contentData[i])
+				    } else {
+				        content += '<div class="form-group">\n                    <label for="name">' + contentData[i].text + '</label>';
+				        let opts = contentData[i].options;
+				        for (let j = 0; j < opts.length; j++) {
+				            content += opts[j].type === 'text' ? self.createText(opts[j],'2') : '';
+				            content += opts[j].type === 'select' ? self.createSelect(opts[j]) : '';
+				            content += opts[j].type === 'textarea' ? self.createTextarea(opts[j]) : '';
+				            content += opts[j].type === 'table' ? self.createTable(opts[j]) : '';
+				        }
+				    }
+				}
+			},
+			step4(){
+				content = self.createText(contentData)
+			},
+			step5(){
+				content = ''
+				contentData = contentData.options
+				for (let i = 0; i < contentData.length; i++) {
+					content += self.createText(contentData[i],'2')
+				}
+			},
+			step6(){
+				panel.step5()
+			},
+			step7(){
+				content = contentData.text
+			},
+			step8(){
+				panel.step7()
+			}
+		}
+		return panel['step'+data.step]()
+	}
+	createRadio(data){
+		let radio = `<label for="name">${data.text}</label>`
+		for (let i = 0; i < data.detail.length; i++) {
+			radio += `<div class="${data.type}">
+					    <label>
+					        <input type="${data.type}" name="data.name" id="data.detail[i].value" value="data.detail[i].value" ${data.detail[i].checked ? 'checked':''}>
+					        data.detail[i].text
+					    </label>
+					  </div>`
+		}
+		return radio
+	}
+	createFooterBtn(data){
+		return `<a class="prev first-step" disabled="disabled">
+	                <span class="btn-name">上一步</span>
+	                <span class="control-detail"></span>
+	            </a>
+	            <a class="next">
+	                <span class="btn-name">下一步</span>
+	                <span class="control-detail">网络参数设置</span>
+	            </a>`
+	}
+	createStep(data){
+		let step = `<div  class="stepBar" >
+                		<ul>`
+        for (let i = 0; i < data; i++) {
+        	step += `<li class="${i===data-1 ? 'last-step':''} step-${i+1}">
+                        <div class="step-line">
+                            <span class="line"></span>
+                        </div>
+                        <div class="step-num ${i === 0 ? 'current':''}">
+                            <div class="bg-circle">
+                               <span class="num">${i+1}</span>
+                            </div>
+                        </div>
+                    </li>`
+        }
+        step += `</ul>
+            </div>`
+        return step
+	}
 	createText(data, level) {
 		return `
 			<div class="form-group ${level=== '2' ? 'form-group-second':''}">

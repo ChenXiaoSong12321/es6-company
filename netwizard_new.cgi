@@ -58,7 +58,7 @@ sub init_data(){
 
                     <link rel="stylesheet" type="text/css" href="/include/waiting_mesgs.css"/>
 
-                    <script language="JavaScript" src="/include/netwizard_new.js"></script>
+                    <script language="JavaScript" src="/include/min/netwizard_new.min.js"></script>
                     <script language="JavaScript" src="/include/message_manager.js"></script>'
 
                     
@@ -78,8 +78,196 @@ sub do_action() {
     #===根据用户提交的数据进行具体反馈,默认返回页面==#
     if ( $action eq 'getStep' ) {
         &getStep();
-    }elsif($action eq 'aaa'){
+    }elsif($action eq 'getData'){
+        my %ret_data;
+        print ('{
+    "stepdetail": {
+        "step1": {
+            "text": "主上行接口(WAN)", 
+            "type": "radio", 
+            "name": "RED_TYPE", 
+            "detail": [
+                {
+                    "value": "STATIC", 
+                    "checked": false, 
+                    "text": "固定IP"
+                }, 
+                {
+                    "value": "DHCP", 
+                    "checked": true, 
+                    "text": "DHCP"
+                }, 
+                {
+                    "value": "PPPOE", 
+                    "checked": false, 
+                    "text": "PPPOE"
+                }, 
+                {
+                    "value": "NONE", 
+                    "checked": false, 
+                    "text": "透明网关"
+                }
+            ]
+        }, 
+        "step2": {
+            "text": "服务器区(DMZ)", 
+            "type": "radio", 
+            "name": "ZONES", 
+            "detail": [
+                {
+                    "value": "NONE", 
+                    "checked": false, 
+                    "text": "无"
+                }, 
+                {
+                    "value": "ORANGE", 
+                    "checked": true, 
+                    "text": "DMZ区"
+                }
+            ]
+        }, 
+        "step3": {
+            "options": [
+                {
+                    "name": "", 
+                    "text": "内网用户区(LAN)", 
+                    "type": "group", 
+                    "options": [
+                        {
+                            "text": "IP 地址*", 
+                            "type": "text", 
+                            "name": "DISPLAY_GREEN_ADDRESS", 
+                            "value": "192.168.11.181"
+                        }, 
+                        {
+                            "text": "附加IP地址", 
+                            "type": "textarea", 
+                            "name": "DISPLAY_GREEN_ADDITIONAL", 
+                            "value": "192.168.11.181&3.3.3.3"
+                        }, 
+                        {
+                            "text": "子网掩码*", 
+                            "name": "DISPLAY_GREEN_NETMASK", 
+                            "type": "select", 
+                            "options": [
+                                {
+                                    "value": "0", 
+                                    "text": "/0 - 0.0.0.0", 
+                                    "checked": false
+                                }, 
+                                {
+                                    "value": "1", 
+                                    "text": "/1 - 128.0.0.0", 
+                                    "checked": true
+                                }
+                            ]
+                        }, 
+                        {
+                            "text": "接口*", 
+                            "name": "", 
+                            "type": "table", 
+                            "options": [
+                                {
+                                    "name": "", 
+                                    "type": "", 
+                                    "checked": "", 
+                                    "value": "", 
+                                    "port": "端口", 
+                                    "connect": "连接", 
+                                    "mac": "MAC", 
+                                    "device": "设备"
+                                }, 
+                                {
+                                    "name": "GREEN_DEVICES", 
+                                    "type": "checkbox", 
+                                    "checked": true, 
+                                    "value": "1", 
+                                    "port": "n/a", 
+                                    "connect": false, 
+                                    "mac": "28:51:32:12:06:d3", 
+                                    "device": "eth0.10"
+                                }, 
+                                {
+                                    "name": "GREEN_DEVICES", 
+                                    "type": "checkbox", 
+                                    "checked": false, 
+                                    "value": "2", 
+                                    "port": "1", 
+                                    "connect": true, 
+                                    "mac": "28:51:32:12:06:d4", 
+                                    "device": "eth1"
+                                }
+                            ]
+                        }
+                    ]
+                }, 
+                {
+                    "text": "主机名", 
+                    "name": "HOSTNAME", 
+                    "type": "text", 
+                    "value": "localhost"
+                }, 
+                {
+                    "text": "域名", 
+                    "name": "DOMAINNAME", 
+                    "type": "text", 
+                    "value": "localdomain"
+                }
+            ]
+        }, 
+        "step4": {
+            "text": "主上行接口(WAN)[默认网关*]", 
+            "name": "DEFAULT_GATEWAY", 
+            "type": "text", 
+            "value": "192.168.11.1"
+        }, 
+        "step5": {
+            "options": [
+                {
+                    "text": "DNS 1*", 
+                    "name": "DNS1", 
+                    "type": "text", 
+                    "value": "61.139.2.69"
+                }, 
+                {
+                    "text": "DNS 2", 
+                    "name": "DNS2", 
+                    "type": "text", 
+                    "value": ""
+                }
+            ]
+        }, 
+        "step6": {
+            "options": [
+                {
+                    "text": "管理员邮箱地址", 
+                    "name": "MAIN_ADMINMAIL", 
+                    "type": "text", 
+                    "value": ""
+                }, 
+                {
+                    "text": "发送者邮件地址", 
+                    "name": "MAIN_MAILFROM", 
+                    "type": "text", 
+                    "value": ""
+                }, 
+                {
+                    "text": "邮件中继主机地址", 
+                    "name": "MAIN_SMARTHOST", 
+                    "type": "text", 
+                    "value": ""
+                }
+            ]
+        }, 
+        "step7": {
+            "text": "网络设置已经准备好,点击应用配置就可应用新的配置.."
+        }, 
+        "step8": {
+            "text": "配置成功"
+        }
     }
+}'); 
+    }    
     else{
         &show_page();
     }
@@ -116,134 +304,17 @@ sub display_main_body() {
     <input type="hidden" id="log-mesg-note" value="$notemessage">  
     <div id="main_nwz">
         <div id="step">
-            <div  class="stepBar" >
-                <ul>
-                    <li>
-                        <div class="step-line success">
-                            <span class="line"></span>
-                        </div>
-                        <div class="step-num success">
-                            <div class="bg-circle">
-                               <span class="num">1</span>
-                            </div>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="step-line">
-                            <span class="line"></span>
-                        </div>
-                        <div class="step-num current">
-                            <div class="bg-circle">
-                               <span class="num">2</span>
-                            </div>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="step-line">
-                            <span class="line"></span>
-                        </div>
-                        <div class="step-num">
-                            <div class="bg-circle">
-                               <span class="num">3</span>
-                            </div>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="step-line">
-                            <span class="line"></span>
-                        </div>
-                        <div class="step-num">
-                            <div class="bg-circle">
-                           <span class="num">4</span>
-                        </div>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="step-line">
-                            <span class="line"></span>
-                        </div>
-                        <div class="step-num">
-                            <div class="bg-circle">
-                           <span class="num">5</span>
-                        </div>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="step-line">
-                            <span class="line"></span>
-                        </div>
-                        <div class="step-num">
-                            <div class="bg-circle">
-                           <span class="num">6</span>
-                        </div>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="step-line">
-                            <span class="line"></span>
-                        </div>
-                        <div class="step-num">
-                            <div class="bg-circle">
-                           <span class="num">7</span>
-                        </div>
-                        </div>
-                    </li>
-                    <li class="last-step">
-                        <div class="step-line">
-                            <span class="line"></span>
-                        </div>
-                        <div class="step-num">
-                            <div class="bg-circle">
-                           <span class="num">8</span>
-                        </div>
-                        </div>
-                    </li>
-                </ul>
-            </div>
+            
         </div>
         <div id="step_panel">
+
             <br/>
             <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-           
-            step_panel
+            
         </div> 
     </div>
         <div id="footer_btn">
-            <button class="prev">
-                <span class="btn-name">上一步</span>
-                <span class="control-detail">选择主上行接口类型</span>
-            </button>
-            <button class="next">
-                <span class="btn-name">下一步</span>
-                <span class="control-detail">网络参数设置</span>
-            </button>
+           
         </div>
 EOF
     ;

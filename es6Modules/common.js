@@ -12,9 +12,9 @@ class Common{
 		return name
 	}
 	setCss(el,css){
-		for(let [key,value] of css.entries()){
+		for(let [key,value] of Object.entries(css)){
 			key = this.converseNameStyle(key)
-			typeof el.style[key] !== 'undefined' && el.style[key] = value;
+			if(typeof el.style[key] !== 'undefined')  el.style[key] = value;
 		}
 	}
 	// 获取元素
@@ -22,7 +22,13 @@ class Common{
 		let ele = document.querySelectorAll(el)
 		return ele.length === 1 ? ele[0] : ele
 	}
-
+	getObjSize(obj){
+		let count = 0;
+		for(let i in obj){
+		    count ++;
+		}
+		return count;
+	}
 	// 绑定事件
 	on(el,eventName,handle){
 		el.addEventListener ? el.addEventListener(eventName, handle) : el.attachEvent(`on${eventName}`, handle)
@@ -59,21 +65,24 @@ class Common{
 			nodes.forEach((item)=>{item.innerHTML = content})
 		}else{
 			let nodeHtml = []
-			nodes.forEach((item)=>{nodeHtml.push(item.innerHTML)})
+			nodes.forEach((item)=>{
+				item.innerHTML = content
+				nodeHtml.push(item.innerHTML)
+			})
 			nodes = nodeHtml
 		}
 		return nodes
 	}
 	ajax(opt={}){
-		opt.method = opt.method.toUppercase()
-		opt.url = opt.url || ''
-		opt.async =opt.async || true
-		opt.data = opt.data || null
-		opt.success = opt.success || function (){}
+		opt.method = opt.method.toUpperCase();
+		opt.url = opt.url || '';
+		opt.async =opt.async || true;
+		opt.data = opt.data || null;
+		opt.success = opt.success || function (){};
 		let xmlHttp = XMLHttpRequest ? new XMLHttpRequest : new ActiveXObject('Microsoft.XMLHTTP')
 		
 		let params = new Set()
-		for(let [key,value] of opt.data.entries()){
+		for(let [key,value] of Object.entries(opt.data)){
 			params.add(`${key}=${value}`)
 		}
 		let postData = [...params].join('&')

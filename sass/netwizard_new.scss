@@ -39,11 +39,11 @@ body,.right-content{
                 
                 .line {
                 	@include inline-block();
-            	    width: 75%;
+            	    width: 72%;
 				    border-top: 1px solid #ccc;
 				    position: absolute;
 				    top: 46%;
-				    left: 60%;
+				    left: 63%;
                 }
             }
             .step-num.success {
@@ -83,6 +83,11 @@ body,.right-content{
 				}
             }
             .step-num {
+            	&:hover{
+            		cursor:pointer ;
+            		transform:scale(1.2);
+            	}
+            	transition:all 0.2s;
                 @include rounded(50%);
                 @include inline-block();
                 width: 24px;
@@ -125,25 +130,41 @@ body,.right-content{
     border-top: 1px solid #ebecec;
 }
 #footer_btn{
-	button{
+	a.first-step{
+		background-color:#eee;
+		border-color: #e0e0e0;
+    	color: #999;
+		&:hover{
+			background-color:#eee;
+			cursor:no-wrap;
+			span{color:#999}
+		}
+	}
+	a{
 		// @include float(right);
 		margin-top:10px;
 		padding:4px 44px;
-		min-width:200px;
+		min-width:112px;
 	    color: #ff8a00;
 	    border:1px solid #ff8a00;
+	    @include inline-block();
 	    font-size: 14px;
 	    margin-left: 20px;
 	    background-color:#fff;
+	    min-height:36px;
 	    @include rounded(4px);
-		span.btn-name{
+	    cursor: pointer;
+	    transition: all 0.2s;
+		transition-timing-function: ease-in-out;
+	    span{
+	    	text-align:center;
 			display:block;
+	    }
+		span.btn-name{
 			font-size:15px;
 		}
 		span.control-detail{
-			display:block;
 			font-size:12px;
-
 		}
 		&:hover{
 			background-color:#ff8a00;
@@ -152,10 +173,10 @@ body,.right-content{
 			}
 		}
 	}
-	button.prev{
+	a.prev{
 
 	}
-	button.next{
+	a.next{
 
 	}
 }
