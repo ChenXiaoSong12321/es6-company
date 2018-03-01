@@ -48,15 +48,16 @@ class Create {
 				panel.step7()
 			}
 		}
-		return panel['step'+data.step]()
+		panel['step'+data.step]()
+		return content
 	}
 	createRadio(data){
 		let radio = `<label for="name">${data.text}</label>`
 		for (let i = 0; i < data.detail.length; i++) {
 			radio += `<div class="${data.type}">
 					    <label>
-					        <input type="${data.type}" name="data.name" id="data.detail[i].value" value="data.detail[i].value" ${data.detail[i].checked ? 'checked':''}>
-					        data.detail[i].text
+					        <input type="${data.type}" name="${data.name}" id="${data.detail[i].value}" value="${data.detail[i].value}" ${data.detail[i].checked ? 'checked':''}>
+					        ${data.detail[i].text}
 					    </label>
 					  </div>`
 		}
