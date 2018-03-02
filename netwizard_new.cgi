@@ -84,6 +84,7 @@ sub do_action() {
     "stepdetail": {
         "step1": {
             "text": "主上行接口(WAN)", 
+            "stepText":"选择主上行接口类型",
             "type": "radio", 
             "name": "RED_TYPE", 
             "detail": [
@@ -110,6 +111,7 @@ sub do_action() {
             ]
         }, 
         "step2": {
+            "stepText":"选择需要启用的网络服务区域",
             "text": "服务器区(DMZ)", 
             "type": "radio", 
             "name": "ZONES", 
@@ -127,6 +129,7 @@ sub do_action() {
             ]
         }, 
         "step3": {
+            "stepText":"网络参数设置",
             "options": [
                 {
                     "name": "", 
@@ -200,6 +203,78 @@ sub do_action() {
                             ]
                         }
                     ]
+                }, {
+                    "name": "", 
+                    "text": "服务器区(DMZ)", 
+                    "type": "dmzGroup", 
+                    "options": [
+                        {
+                            "text": "IP 地址*", 
+                            "type": "text", 
+                            "name": "DISPLAY_ORANGE_ADDRESS", 
+                            "value": "192.168.11.181"
+                        }, 
+                        {
+                            "text": "附加IP地址", 
+                            "type": "textarea", 
+                            "name": "DISPLAY_GREEN_ADDITIONAL", 
+                            "value": "192.168.11.181&3.3.3.3"
+                        }, 
+                        {
+                            "text": "子网掩码*", 
+                            "name": "DISPLAY_ORANGE_NETMASK", 
+                            "type": "select", 
+                            "options": [
+                                {
+                                    "value": "0", 
+                                    "text": "/0 - 0.0.0.0", 
+                                    "checked": false
+                                }, 
+                                {
+                                    "value": "1", 
+                                    "text": "/1 - 128.0.0.0", 
+                                    "checked": true
+                                }
+                            ]
+                        }, 
+                        {
+                            "text": "接口*", 
+                            "name": "", 
+                            "type": "table", 
+                            "options": [
+                                {
+                                    "name": "", 
+                                    "type": "", 
+                                    "checked": "", 
+                                    "value": "", 
+                                    "port": "端口", 
+                                    "connect": "连接", 
+                                    "mac": "MAC", 
+                                    "device": "设备"
+                                }, 
+                                {
+                                    "name": "ORANGE_DEVICES", 
+                                    "type": "checkbox", 
+                                    "checked": true, 
+                                    "value": "1", 
+                                    "port": "n/a", 
+                                    "connect": false, 
+                                    "mac": "28:51:32:12:06:d3", 
+                                    "device": "eth0.10"
+                                }, 
+                                {
+                                    "name": "ORANGE_DEVICES", 
+                                    "type": "checkbox", 
+                                    "checked": false, 
+                                    "value": "2", 
+                                    "port": "1", 
+                                    "connect": true, 
+                                    "mac": "28:51:32:12:06:d4", 
+                                    "device": "eth1"
+                                }
+                            ]
+                        }
+                    ]
                 }, 
                 {
                     "text": "主机名", 
@@ -216,12 +291,14 @@ sub do_action() {
             ]
         }, 
         "step4": {
+            "stepText":"互联网连接偏好设置",
             "text": "主上行接口(WAN)[默认网关*]", 
             "name": "DEFAULT_GATEWAY", 
             "type": "text", 
             "value": "192.168.11.1"
         }, 
         "step5": {
+            "stepText":"配置DNS",
             "options": [
                 {
                     "text": "DNS 1*", 
@@ -238,6 +315,7 @@ sub do_action() {
             ]
         }, 
         "step6": {
+            "stepText":"配置默认管理员邮箱",
             "options": [
                 {
                     "text": "管理员邮箱地址", 
@@ -260,12 +338,15 @@ sub do_action() {
             ]
         }, 
         "step7": {
+            "stepText":"应用配置",
             "text": "网络设置已经准备好,点击应用配置就可应用新的配置.."
         }, 
         "step8": {
+            "stepText":"配置完成",
             "text": "配置成功"
         }
     }
+}
 }'); 
     }    
     else{

@@ -32,26 +32,31 @@ class Common{
 	// 绑定事件
 	on(el,eventName,handle){
 		el.addEventListener ? el.addEventListener(eventName, handle) : el.attachEvent(`on${eventName}`, handle)
-		return this
+		return el
 	}
 
 	// 解除绑定事件
 	off(el,eventName,handle){
 		el.removeEventListener ? el.removeEventListener(eventName, handle) : el.detachEvent(`on${eventName}`, handle)
-		return this
+		return el
 	}
 	nodeToArr(nodes){
 		let nodeList = []
 		if (nodes instanceof Array){
 			return nodes
 		}else{
-			nodes.length ? nodeList[0] = nodes : nodeList = Array.from(nodes)
+			nodes.length ? nodeList = Array.from(nodes) : nodeList[0] = nodes
 		}
-		return nodes
+		return nodeList
 	}
 	addClass(nodes,className){
 		nodes = this.nodeToArr(this.select(nodes))
-		nodes.forEach((item)=>{item.classList.add(className)})
+		className = className.split(/\ +/)
+		nodes.forEach((item)=>{
+			for (let i = 0; i < className.length; i++) {
+				item.classList.add(className[i])
+			}
+		})
 		return nodes
 	}
 	removeClass(nodes,className){
