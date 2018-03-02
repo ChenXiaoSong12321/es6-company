@@ -18,7 +18,7 @@ import plumber from 'gulp-plumber';
 // 命令行工具输出的包
 import {log,colors} from 'gulp-util';
 
-// npm install babel-preset-es2015 babel-plugin-transform-decorators-legacy babel-loader babel-core babel-preset-env gulp gulp-uglify gulp-watch-path gulp-rename gulp-if gulp-concat webpack webpack-stream vinyl-named gulp-plumber gulp-util --save-dev
+// npm install babel-preset-es2015 babel-plugin-transform-decorators-legacy babel-loader babel-core babel-preset-env gulp gulp-uglify gulp-watch-path gulp-rename gulp-if gulp-concat webpack webpack-stream vinyl-named gulp-plumber gulp-util gulp-sass autoprefixer cssnano postcss-import gulp-postcss jquery babel-polyfill --save-dev
 
 gulp.task('default', ['watch','watchSass'])
 
