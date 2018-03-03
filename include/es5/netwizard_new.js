@@ -9976,7 +9976,7 @@ var Netwizard = function (_mix) {
             this.select('#step').innerHTML = step;
             var footer_btn = this.createFooterBtn();
             this.select("#footer_btn").innerHTML = footer_btn;
-            var panel = this.createStepPanel(this.interfaceConfig);
+            var panel = this.createStepPanel();
             this.select('#step_panel').innerHTML = panel;
         }
     }, {
@@ -10020,80 +10020,6 @@ var Create = function () {
 	}
 
 	_createClass(Create, [{
-		key: 'createStepPanel',
-		value: function createStepPanel(data) {
-			var self = this;
-			var content = "数据有误";
-			var contentData = data.stepdetail['step' + data.curStep];
-			var panel = {
-				step1: function step1() {
-					content = self.createRadio(contentData);
-				},
-				step2: function step2() {
-					panel.step1();
-				},
-				step3: function step3() {
-					content = '';
-					contentData = contentData.options;
-					for (var i = 0; i < contentData.length; i++) {
-						if (contentData[i].type === 'text') {
-							content += self.createText(contentData[i]);
-						} else if (contentData[i].type === 'group') {
-							content += '<div class="form-group">\n\t\t\t\t        \t\t\t\t<label for="name">' + contentData[i].text + '</label>';
-							var opts = contentData[i].options;
-							for (var j = 0; j < opts.length; j++) {
-								content += opts[j].type === 'text' ? self.createText(opts[j], '2') : '';
-								content += opts[j].type === 'select' ? self.createSelect(opts[j]) : '';
-								content += opts[j].type === 'textarea' ? self.createTextarea(opts[j]) : '';
-								content += opts[j].type === 'table' ? self.createTable(opts[j]) : '';
-							}
-							content += '</div>';
-						} else if (contentData[i].type === 'dmzGroup') {
-							var step2detail = self.interfaceConfig.stepdetail.step2.detail;
-							var dmzStatus = false;
-							for (var k = 0; k < step2detail.length; k++) {
-								if (step2detail[k].value.toUpperCase() === 'ORANGE') {
-									dmzStatus = step2detail[k].checked;
-								}
-							}
-							if (dmzStatus) {
-								content += '<div class="form-group">\n\t\t\t\t        \t\t\t\t<label for="name">' + contentData[i].text + '</label>';
-								var _opts = contentData[i].options;
-								for (var _j = 0; _j < _opts.length; _j++) {
-									content += _opts[_j].type === 'text' ? self.createText(_opts[_j], '2') : '';
-									content += _opts[_j].type === 'select' ? self.createSelect(_opts[_j]) : '';
-									content += _opts[_j].type === 'textarea' ? self.createTextarea(_opts[_j]) : '';
-									content += _opts[_j].type === 'table' ? self.createTable(_opts[_j]) : '';
-								}
-								content += '</div>';
-							}
-						}
-					}
-				},
-				step4: function step4() {
-					content = self.createText(contentData);
-				},
-				step5: function step5() {
-					content = '';
-					contentData = contentData.options;
-					for (var i = 0; i < contentData.length; i++) {
-						content += self.createText(contentData[i]);
-					}
-				},
-				step6: function step6() {
-					panel.step5();
-				},
-				step7: function step7() {
-					content = contentData.text;
-				},
-				step8: function step8() {
-					panel.step7();
-				}
-			};
-			panel['step' + data.curStep]();
-			return content;
-		}
-	}, {
 		key: 'createRadio',
 		value: function createRadio(data) {
 			var radio = '<label for="name">' + data.text + '</label>';
@@ -10120,12 +10046,12 @@ var Create = function () {
 	}, {
 		key: 'createText',
 		value: function createText(data, level) {
-			return '\n\t\t\t<div class="form-group ' + (level === '2' ? 'form-group-second' : '') + '">\n                <label for="name">' + data.text + '</label>\n                <input type="' + data.type + '" class="form-control"\n                 id="' + data.name + '" name="' + data.name + '" \n                 value="' + data.value + '" placeholder="\u8BF7\u8F93\u5165' + data.text + '">\n            </div>';
+			return '\n\t\t\t<div class="form-group ' + (level === '2' ? 'form-group-second' : '') + '">\n                <label for="name">' + data.text + '</label>\n                <input type="' + data.type + '" class="form-control"\n                 id="' + data.name + '" name="' + data.name + '" \n                 value="' + data.value + '" placeholder="\u8BF7\u8F93\u5165' + data.text + '">\n                 <p id="' + data.name + '_tip" class="error-tip"></p>\n            </div>';
 		}
 	}, {
 		key: 'createTextarea',
 		value: function createTextarea(data) {
-			return '\n\t\t\t<div class="form-group form-group-second">\n                <label for="name">' + data.text + '</label>\n                <textarea class="form-control" rows="3" name="' + data.name + '">' + data.value.replace(/&/, '\n') + '</textarea>\n            </div>';
+			return '\n\t\t\t<div class="form-group form-group-second">\n                <label for="name">' + data.text + '</label>\n                <textarea class="form-control" rows="3" name="' + data.name + '">' + data.value.replace(/&/, '\n') + '</textarea>\n                <p id="' + data.name + '_tip" class="error-tip"></p>\n            </div>';
 		}
 	}, {
 		key: 'createSelect',
@@ -10491,6 +10417,9 @@ var Base = function () {
             var config = this.interfaceConfig;
             var self = this;
             var cur = this.select('.stepBar .step-' + config.curStep);
+            if (direction === 'next' && this.checkForm() === false) {
+                return;
+            }
             this.removeClass('.stepBar .step-' + config.curStep + ' .step-num', 'current');
             direction === 'next' && this.saveData();
             if (direction === 'next' && config.curStep < config.stepCount) {
@@ -10520,34 +10449,82 @@ var Base = function () {
             this.addClass('.stepBar .step-' + config.curStep + ' .step-num', 'current');
             cur = this.select('.stepBar .step-' + config.curStep);
         }
-    }]);
-
-    return Base;
-}();
-
-exports.default = Base;
-
-/***/ }),
-/* 335 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var SaveData = function () {
-    function SaveData() {
-        _classCallCheck(this, SaveData);
-    }
-
-    _createClass(SaveData, [{
+    }, {
+        key: 'createStepPanel',
+        value: function createStepPanel() {
+            var self = this,
+                content = "数据有误",
+                data = self.interfaceConfig,
+                contentData = data.stepdetail['step' + data.curStep];
+            var panel = {
+                step1: function step1() {
+                    content = self.createRadio(contentData);
+                },
+                step2: function step2() {
+                    panel.step1();
+                },
+                step3: function step3() {
+                    content = '';
+                    contentData = contentData.options;
+                    for (var i = 0; i < contentData.length; i++) {
+                        if (contentData[i].type === 'text') {
+                            content += self.createText(contentData[i]);
+                        } else if (contentData[i].type === 'group') {
+                            content += '<div class="form-group">\n                                        <label for="name">' + contentData[i].text + '</label>';
+                            var opts = contentData[i].options;
+                            for (var j = 0; j < opts.length; j++) {
+                                content += opts[j].type === 'text' ? self.createText(opts[j], '2') : '';
+                                content += opts[j].type === 'select' ? self.createSelect(opts[j]) : '';
+                                content += opts[j].type === 'textarea' ? self.createTextarea(opts[j]) : '';
+                                content += opts[j].type === 'table' ? self.createTable(opts[j]) : '';
+                            }
+                            content += '</div>';
+                        } else if (contentData[i].type === 'dmzGroup') {
+                            var step2detail = self.interfaceConfig.stepdetail.step2.detail;
+                            var dmzStatus = false;
+                            for (var k = 0; k < step2detail.length; k++) {
+                                if (step2detail[k].value.toUpperCase() === 'ORANGE') {
+                                    dmzStatus = step2detail[k].checked;
+                                }
+                            }
+                            if (dmzStatus) {
+                                content += '<div class="form-group">\n                                        <label for="name">' + contentData[i].text + '</label>';
+                                var _opts = contentData[i].options;
+                                for (var _j = 0; _j < _opts.length; _j++) {
+                                    content += _opts[_j].type === 'text' ? self.createText(_opts[_j], '2') : '';
+                                    content += _opts[_j].type === 'select' ? self.createSelect(_opts[_j]) : '';
+                                    content += _opts[_j].type === 'textarea' ? self.createTextarea(_opts[_j]) : '';
+                                    content += _opts[_j].type === 'table' ? self.createTable(_opts[_j]) : '';
+                                }
+                                content += '</div>';
+                            }
+                        }
+                    }
+                },
+                step4: function step4() {
+                    content = self.createText(contentData);
+                },
+                step5: function step5() {
+                    content = '';
+                    contentData = contentData.options;
+                    for (var i = 0; i < contentData.length; i++) {
+                        content += self.createText(contentData[i]);
+                    }
+                },
+                step6: function step6() {
+                    panel.step5();
+                },
+                step7: function step7() {
+                    content = contentData.text;
+                },
+                step8: function step8() {
+                    panel.step7();
+                }
+            };
+            panel['step' + data.curStep]();
+            return content;
+        }
+    }, {
         key: 'saveData',
         value: function saveData() {
             var self = this;
@@ -10602,6 +10579,64 @@ var SaveData = function () {
             save['step' + self.interfaceConfig.curStep]();
         }
     }, {
+        key: 'checkForm',
+        value: function checkForm() {
+            var checkStatus = true;
+            var self = this;
+            var needCheckData = self.interfaceConfig['step' + self.interfaceConfig.curStep];
+            var check = {
+                step1: function step1() {},
+                step2: function step2() {},
+                step3: function step3() {
+                    self.checkFormData('ip', 'text', 'DISPLAY_GREEN_ADDRESS');
+                    self.checkFormData('ip', 'text', 'HOSTNAME');
+                    self.checkFormData('ip', 'textarea', 'DISPLAY_GREEN_ADDITIONAL');
+                    self.checkFormData('ip', 'text', 'DISPLAY_GREEN_ADDRESS');
+                    self.checkFormData('ip', 'text', 'DISPLAY_GREEN_ADDRESS');
+                    var step2detail = self.interfaceConfig.stepdetail.step2.detail;
+                    var dmzStatus = false;
+                    for (var k = 0; k < step2detail.length; k++) {
+                        if (step2detail[k].value.toUpperCase() === 'ORANGE') {
+                            dmzStatus = step2detail[k].checked;
+                        }
+                    }
+                },
+                step4: function step4() {},
+                step5: function step5() {},
+                step6: function step6() {},
+                step7: function step7() {},
+                step8: function step8() {}
+            };
+            return check['step' + self.interfaceConfig.curStep]();
+        }
+    }]);
+
+    return Base;
+}();
+
+exports.default = Base;
+
+/***/ }),
+/* 335 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var SaveData = function () {
+    function SaveData() {
+        _classCallCheck(this, SaveData);
+    }
+
+    _createClass(SaveData, [{
         key: 'getChecked',
         value: function getChecked(radio) {
             var checkedVal = void 0;

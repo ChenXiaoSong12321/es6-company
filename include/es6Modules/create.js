@@ -1,77 +1,5 @@
 class Create {
-	createStepPanel(data){
-		let self = this
-		let content = "数据有误"
-		let contentData = data.stepdetail[`step${data.curStep}`]
-		let panel ={
-			step1(){
-				content = self.createRadio(contentData)
-			},
-			step2(){
-				panel.step1()
-			},
-			step3(){
-				content = ''
-				contentData = contentData.options
-				for (let i = 0; i < contentData.length; i++) {
-				    if (contentData[i].type === 'text') {
-				    	content += self.createText(contentData[i])
-				    } else if(contentData[i].type === 'group') {
-				        content += `<div class="form-group">
-				        				<label for="name">${contentData[i].text}</label>`;
-				        let opts = contentData[i].options;
-				        for (let j = 0; j < opts.length; j++) {
-				            content += opts[j].type === 'text' ? self.createText(opts[j],'2') : '';
-				            content += opts[j].type === 'select' ? self.createSelect(opts[j]) : '';
-				            content += opts[j].type === 'textarea' ? self.createTextarea(opts[j]) : '';
-				            content += opts[j].type === 'table' ? self.createTable(opts[j]) : '';
-				        }
-				        content += `</div>`
-				    }else if(contentData[i].type === 'dmzGroup'){
-				    	let step2detail = self.interfaceConfig.stepdetail.step2.detail
-				        let dmzStatus = false
-				        for (let k = 0; k < step2detail.length; k++) {
-				        	if(step2detail[k].value.toUpperCase() === 'ORANGE') {dmzStatus = step2detail[k].checked}
-				        }
-				        if (dmzStatus) {
-				        	content += `<div class="form-group">
-				        				<label for="name">${contentData[i].text}</label>`;
-				        	let opts = contentData[i].options;
-					        for (let j = 0; j < opts.length; j++) {
-					            content += opts[j].type === 'text' ? self.createText(opts[j],'2') : '';
-					            content += opts[j].type === 'select' ? self.createSelect(opts[j]) : '';
-					            content += opts[j].type === 'textarea' ? self.createTextarea(opts[j]) : '';
-					            content += opts[j].type === 'table' ? self.createTable(opts[j]) : '';
-					        }
-					        content += `</div>`	
-				        }
-				    }
-				}
-
-			},
-			step4(){
-				content = self.createText(contentData)
-			},
-			step5(){
-				content = ''
-				contentData = contentData.options
-				for (let i = 0; i < contentData.length; i++) {
-					content += self.createText(contentData[i])
-				}
-			},
-			step6(){
-				panel.step5()
-			},
-			step7(){
-				content = contentData.text
-			},
-			step8(){
-				panel.step7()
-			}
-		}
-		panel['step'+data.curStep]()
-		return content
-	}
+	
 	createRadio(data){
 		let radio = `<label for="name">${data.text}</label>`
 		for (let i = 0; i < data.detail.length; i++) {
@@ -120,6 +48,7 @@ class Create {
                 <input type="${data.type}" class="form-control"
                  id="${data.name}" name="${data.name}" 
                  value="${data.value}" placeholder="请输入${data.text}">
+                 <p id="${data.name}_tip" class="error-tip"></p>
             </div>`
 	}
 	createTextarea(data) {
@@ -127,6 +56,7 @@ class Create {
 			<div class="form-group form-group-second">
                 <label for="name">${data.text}</label>
                 <textarea class="form-control" rows="3" name="${data.name}">${data.value.replace(/&/,'\n')}</textarea>
+                <p id="${data.name}_tip" class="error-tip"></p>
             </div>`
 	}
 	createSelect(data) {

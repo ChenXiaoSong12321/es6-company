@@ -1,7 +1,3 @@
-//Date:2012-08-15
-//功能：表单检查类
-//作者:zhouyuan
-//传入：表单内的元素object
 function ChinArk_forms() {
 	this.illegalMesg = "非法字符！";
 	this.text_check = {
@@ -86,12 +82,6 @@ ChinArk_forms.prototype = {
 			elem['on' + type] = handler;　　
 		}
 	},
-	// addEvent:function(obj,name,f_obj){//提供给外界自己添加事件处理函数，兼容ie和firefox
-	// 			 if(!(obj && name && f_obj)){alert("添加相关联的"+name+"事件失败！");return;}
-	// 			 if(/^on/.test(name)){alert("传入的事件名不用带on");return;}
-	// 			 if(document.all){obj.attachEvent("on"+name,f_obj)}
-	// 			 else{obj.attachEvent(name,f_obj)}
-	// 		 },
 	_addFormSubmit: function(obj) {
 		var me = this;
 		if (document.all) {
@@ -2194,17 +2184,3 @@ ChinArk_forms.prototype = {
 	}
 
 }
-
-// function adjust_transparent_border(elem, id, panel_div_id) {
-
-// 	if (elem) {
-// 		var mainframe = window.parent.parent.document.getElementById("mainFrame").contentWindow;
-// 		var edit_passwd_height = mainframe.document.getElementById("eidt_passwd_body").offsetHeight;
-// 		mainframe.document.getElementById("eidt_passwd_bbb").style.height = edit_passwd_height + 'px';
-// 		if (document.getElementById(panel_div_id)) {
-// 			var border_height = document.getElementById(panel_div_id).offsetHeight;
-// 			document.getElementById(id).style.height = border_height + 'px';
-// 		}
-
-// 	}
-// }

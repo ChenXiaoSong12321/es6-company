@@ -308,7 +308,7 @@ class Netwizard extends mix(Create, Animate, Common, SaveData, Base) {
         this.select('#step').innerHTML = step
         let footer_btn = this.createFooterBtn()
         this.select("#footer_btn").innerHTML = footer_btn
-        let panel = this.createStepPanel(this.interfaceConfig)
+        let panel = this.createStepPanel()
         this.select('#step_panel').innerHTML = panel
     }
     addListener() {
