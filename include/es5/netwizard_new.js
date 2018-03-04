@@ -10591,7 +10591,7 @@ var Base = function () {
                     self.checkFormData('ip', 'text', 'DISPLAY_GREEN_ADDRESS');
                     self.checkFormData('ip', 'text', 'HOSTNAME');
                     self.checkFormData('ip', 'textarea', 'DISPLAY_GREEN_ADDITIONAL');
-                    self.checkFormData('ip', 'text', 'DISPLAY_GREEN_ADDRESS');
+                    self.checkFormData('ip', 'text', 'DOMAINNAME');
                     self.checkFormData('ip', 'text', 'DISPLAY_GREEN_ADDRESS');
                     var step2detail = self.interfaceConfig.stepdetail.step2.detail;
                     var dmzStatus = false;
