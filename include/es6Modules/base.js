@@ -183,6 +183,9 @@ class Base {
         }
         save[`step${self.interfaceConfig.curStep}`]()
     }
+    customTip(option, name, msg, form_name){
+        this.select(`form[name="${form_name}"] p#${name}_tip`).innerText = msg
+    }
     checkForm(form_name){
         let errorItems = this.checkOption.get('errorItems').get(form_name).size
         if (errorItems !== 0) {

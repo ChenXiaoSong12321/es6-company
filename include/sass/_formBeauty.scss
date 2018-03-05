@@ -1,12 +1,17 @@
 input, button, select, textarea {
-outline: none;
-// -webkit-appearance: none;
-border-radius: 0;
+    outline: none;
+    // -webkit-appearance: none;
+    border-radius: 0;
 
 }
 .error-input{
-    border:1px solid red;
+    border:1px solid red!important;
 }
+
+.right-input{
+    border:1px solid green!important;
+}
+
 input:focus,textarea:focus,select:focus{ 
 	// border:none;
 	border:1px solid #66afe9;

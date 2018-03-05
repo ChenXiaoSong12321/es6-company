@@ -49,19 +49,24 @@ class Common{
 		}
 		return nodeList
 	}
-	addClass(nodes,className){
+	addClass(nodes,classNames){
 		nodes = this.nodeToArr(this.select(nodes))
-		className = className.split(/\ +/)
+		classNames = classNames.split(/\ +/)
 		nodes.forEach((item)=>{
-			for (let i = 0; i < className.length; i++) {
-				item.classList.add(className[i])
+			for (let i = 0; i < classNames.length; i++) {
+				item.classList.add(classNames[i])
 			}
 		})
 		return nodes
 	}
-	removeClass(nodes,className){
+	removeClass(nodes,classNames){
 		nodes = this.nodeToArr(this.select(nodes))
-		nodes.forEach((item)=>{item.classList.remove(className)})
+		classNames = classNames.split(/\ +/)
+		nodes.forEach((item)=>{
+			for (let i = 0; i < classNames.length; i++) {
+				item.classList.remove(classNames[i])
+			}
+		})
 		return nodes
 	}
 	html(nodes,content=null){

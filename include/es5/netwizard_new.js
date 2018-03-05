@@ -10311,22 +10311,25 @@ var Common = function () {
 		}
 	}, {
 		key: 'addClass',
-		value: function addClass(nodes, className) {
+		value: function addClass(nodes, classNames) {
 			nodes = this.nodeToArr(this.select(nodes));
-			className = className.split(/\ +/);
+			classNames = classNames.split(/\ +/);
 			nodes.forEach(function (item) {
-				for (var i = 0; i < className.length; i++) {
-					item.classList.add(className[i]);
+				for (var i = 0; i < classNames.length; i++) {
+					item.classList.add(classNames[i]);
 				}
 			});
 			return nodes;
 		}
 	}, {
 		key: 'removeClass',
-		value: function removeClass(nodes, className) {
+		value: function removeClass(nodes, classNames) {
 			nodes = this.nodeToArr(this.select(nodes));
+			classNames = classNames.split(/\ +/);
 			nodes.forEach(function (item) {
-				item.classList.remove(className);
+				for (var i = 0; i < classNames.length; i++) {
+					item.classList.remove(classNames[i]);
+				}
 			});
 			return nodes;
 		}
@@ -10622,6 +10625,11 @@ var Base = function () {
                 step8: function step8() {}
             };
             save['step' + self.interfaceConfig.curStep]();
+        }
+    }, {
+        key: 'customTip',
+        value: function customTip(option, name, msg, form_name) {
+            this.select('form[name="' + form_name + '"] p#' + name + '_tip').innerText = msg;
         }
     }, {
         key: 'checkForm',
@@ -10946,21 +10954,21 @@ var Check = function () {
 	}, {
 		key: '_tip',
 		value: function _tip(option, name, msg, form_name) {
-			if (!!this.customTip()) {
-				this.customTip();
+			msg = msg ? msg : '';
+			var el = 'form[name="' + form_name + '"] input[name="' + name + '"]';
+			this.removeClass(el, 'error-input right-input');
+			if (msg) {
+				this.checkOption.get('errorItems').get(form_name).add(name);
+				this.addClass(el, 'error-input');
+			} else {
+				this.checkOption.get('errorItems').get(form_name).delete(name);
+				this.addClass(el, 'right-input');
+			}
+			if (!!this.customTip) {
+				this.customTip(option, name, msg, form_name);
 			} else {
 				return;
 			}
-			if (msg) {
-				this.checkOption.get('errorItems').get(form_name).add(name);
-				var _el = this._getCURElementsByName(name, option.type, form_name);
-				this.addClass(_el, 'error-input');
-			} else {
-				this.checkOption.get('errorItems').get(form_name).delete(name);
-				this.removeClass(el, 'error-input');
-			}
-
-			this.select('#' + name + '_tip').innerText = msg;
 		}
 	}, {
 		key: '_check_text',
