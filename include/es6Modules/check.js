@@ -284,9 +284,21 @@ class Check{
 		}
 	}
 	_tip(option, name, msg, form_name){
-		msg ? this.checkOption.get('errorItems').get(form_name).add(name) :
-		 this.checkOption.get('errorItems').get(form_name).delete(name)
-		console.log(option, name, msg, form_name)
+		if (!!this.customTip()) {
+			this.customTip()
+		}else{
+			return
+		}
+		if (msg) {
+		    this.checkOption.get('errorItems').get(form_name).add(name)
+		    let el = this._getCURElementsByName(name, option.type, form_name)
+		    this.addClass(el,'error-input') 
+		}else{
+		 	this.checkOption.get('errorItems').get(form_name).delete(name)
+		    this.removeClass(el,'error-input') 
+		}
+		
+		this.select(`#${name}_tip`).innerText = msg
 	}
 	_check_text(obj) {
 		let option = obj.option
