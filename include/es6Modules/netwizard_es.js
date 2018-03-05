@@ -3,6 +3,7 @@ import Create from './create.js'
 import Animate from './animate.js'
 import Common from './common.js'
 import Base from './base.js'
+import Check from './check.js'
 import SaveData from './saveData.js'
 
 const copyProperties = function(target, source) {
@@ -21,12 +22,12 @@ const mix = function(...mixins) {
     }
     return Mix
 }
-class Netwizard extends mix(Create, Animate, Common, SaveData, Base) {
-    constructor(name = 'syy', cname = '11选5', issue = '**', state = '**') {
+class Netwizard extends mix(Create, Animate, Common, SaveData, Base,Check) {
+    constructor(url = '**', nextBtn = '**', prevBtn = '**', interfaceConfig = '**') {
         super()
         this.url = "/cgi-bin/netwizard_new.cgi"
-        this.nextBtn = ''
-        this.prevBtn = ''
+        this.nextBtn = nextBtn
+        this.prevBtn = prevBtn
         this.interfaceConfig = {}
         this.init()
     }
@@ -306,15 +307,15 @@ class Netwizard extends mix(Create, Animate, Common, SaveData, Base) {
         this.interfaceConfig.stepCount = this.getObjSize(this.interfaceConfig.stepdetail)
         let step = this.createStep(this.interfaceConfig.stepCount)
         this.select('#step').innerHTML = step
-        let footer_btn = this.createFooterBtn()
+        let footer_btn = this.createFooterBtn(this.interfaceConfig.stepdetail.step2)
         this.select("#footer_btn").innerHTML = footer_btn
         let panel = this.createStepPanel()
         this.select('#step_panel').innerHTML = panel
     }
     addListener() {
         let self = this
-        this.nextBtn = this.select('#footer_btn .next')
-        this.prevBtn = this.select('#footer_btn .prev')
+        this.nextBtn = this.select(this.nextBtn)
+        this.prevBtn = this.select(this.prevBtn)
         this.on(this.nextBtn, 'click', function() { self.switchStep('next') })
         this.on(this.prevBtn, 'click', function() { self.switchStep('prev') })
     }

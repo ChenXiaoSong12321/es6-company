@@ -4044,7 +4044,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 // es7兼容包
 document.addEventListener('DOMContentLoaded', function () {
 	//DOM渲染完即可执行，此时图片、视频还可能没有加载完
-	var nwz = new _netwizard_es2.default();
+	var nwz = new _netwizard_es2.default('/cgi-bin/netwizard_new.cgi', '#footer_btn .next', '#footer_btn .prev');
+	console.log(nwz);
 });
 
 /***/ }),
@@ -9630,7 +9631,11 @@ var _base = __webpack_require__(334);
 
 var _base2 = _interopRequireDefault(_base);
 
-var _saveData = __webpack_require__(335);
+var _check = __webpack_require__(335);
+
+var _check2 = _interopRequireDefault(_check);
+
+var _saveData = __webpack_require__(336);
 
 var _saveData2 = _interopRequireDefault(_saveData);
 
@@ -9713,18 +9718,18 @@ var Netwizard = function (_mix) {
     _inherits(Netwizard, _mix);
 
     function Netwizard() {
-        var name = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'syy';
-        var cname = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '11选5';
-        var issue = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '**';
-        var state = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '**';
+        var url = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '**';
+        var nextBtn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '**';
+        var prevBtn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '**';
+        var interfaceConfig = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '**';
 
         _classCallCheck(this, Netwizard);
 
         var _this = _possibleConstructorReturn(this, (Netwizard.__proto__ || Object.getPrototypeOf(Netwizard)).call(this));
 
         _this.url = "/cgi-bin/netwizard_new.cgi";
-        _this.nextBtn = '';
-        _this.prevBtn = '';
+        _this.nextBtn = nextBtn;
+        _this.prevBtn = prevBtn;
         _this.interfaceConfig = {};
         _this.init();
         return _this;
@@ -9974,7 +9979,7 @@ var Netwizard = function (_mix) {
             this.interfaceConfig.stepCount = this.getObjSize(this.interfaceConfig.stepdetail);
             var step = this.createStep(this.interfaceConfig.stepCount);
             this.select('#step').innerHTML = step;
-            var footer_btn = this.createFooterBtn();
+            var footer_btn = this.createFooterBtn(this.interfaceConfig.stepdetail.step2);
             this.select("#footer_btn").innerHTML = footer_btn;
             var panel = this.createStepPanel();
             this.select('#step_panel').innerHTML = panel;
@@ -9983,8 +9988,8 @@ var Netwizard = function (_mix) {
         key: 'addListener',
         value: function addListener() {
             var self = this;
-            this.nextBtn = this.select('#footer_btn .next');
-            this.prevBtn = this.select('#footer_btn .prev');
+            this.nextBtn = this.select(this.nextBtn);
+            this.prevBtn = this.select(this.prevBtn);
             this.on(this.nextBtn, 'click', function () {
                 self.switchStep('next');
             });
@@ -9995,7 +10000,7 @@ var Netwizard = function (_mix) {
     }]);
 
     return Netwizard;
-}(mix(_create2.default, _animate2.default, _common2.default, _saveData2.default, _base2.default));
+}(mix(_create2.default, _animate2.default, _common2.default, _saveData2.default, _base2.default, _check2.default));
 
 exports.default = Netwizard;
 
@@ -10020,6 +10025,11 @@ var Create = function () {
 	}
 
 	_createClass(Create, [{
+		key: 'createPanelTitle',
+		value: function createPanelTitle(data) {
+			return '<h3 class="panel-title">' + data.stepText + '</h3>';
+		}
+	}, {
 		key: 'createRadio',
 		value: function createRadio(data) {
 			var radio = '<label for="name">' + data.text + '</label>';
@@ -10031,7 +10041,7 @@ var Create = function () {
 	}, {
 		key: 'createFooterBtn',
 		value: function createFooterBtn(data) {
-			return '<a class="prev disabled-step" disabled="disabled">\n\t                <span class="btn-name">\u4E0A\u4E00\u6B65</span>\n\t                <span class="control-detail"></span>\n\t            </a>\n\t            <a class="next">\n\t                <span class="btn-name">\u4E0B\u4E00\u6B65</span>\n\t                <span class="control-detail">\u7F51\u7EDC\u53C2\u6570\u8BBE\u7F6E</span>\n\t            </a>';
+			return '<a class="prev disabled-step" disabled="disabled">\n\t                <span class="btn-name">\u4E0A\u4E00\u6B65</span>\n\t                <span class="control-detail"></span>\n\t            </a>\n\t            <a class="next">\n\t                <span class="btn-name">\u4E0B\u4E00\u6B65</span>\n\t                <span class="control-detail">' + data.stepText + '</span>\n\t            </a>';
 		}
 	}, {
 		key: 'createStep',
@@ -10417,6 +10427,9 @@ var Base = function () {
             var config = this.interfaceConfig;
             var self = this;
             var cur = this.select('.stepBar .step-' + config.curStep);
+            if (config.curStep === 1 && config.curStep === config.stepCount) {
+                return;
+            }
             if (direction === 'next' && this.checkForm() === false) {
                 return;
             }
@@ -10453,18 +10466,17 @@ var Base = function () {
         key: 'createStepPanel',
         value: function createStepPanel() {
             var self = this,
-                content = "数据有误",
                 data = self.interfaceConfig,
-                contentData = data.stepdetail['step' + data.curStep];
+                contentData = data.stepdetail['step' + data.curStep],
+                content = self.createPanelTitle(contentData);
             var panel = {
                 step1: function step1() {
-                    content = self.createRadio(contentData);
+                    content += self.createRadio(contentData);
                 },
                 step2: function step2() {
                     panel.step1();
                 },
                 step3: function step3() {
-                    content = '';
                     contentData = contentData.options;
                     for (var i = 0; i < contentData.length; i++) {
                         if (contentData[i].type === 'text') {
@@ -10502,10 +10514,9 @@ var Base = function () {
                     }
                 },
                 step4: function step4() {
-                    content = self.createText(contentData);
+                    content += self.createText(contentData);
                 },
                 step5: function step5() {
-                    content = '';
                     contentData = contentData.options;
                     for (var i = 0; i < contentData.length; i++) {
                         content += self.createText(contentData[i]);
@@ -10515,7 +10526,7 @@ var Base = function () {
                     panel.step5();
                 },
                 step7: function step7() {
-                    content = contentData.text;
+                    content += contentData.text;
                 },
                 step8: function step8() {
                     panel.step7();
@@ -10581,6 +10592,7 @@ var Base = function () {
     }, {
         key: 'checkForm',
         value: function checkForm() {
+            console.log(this.interfaceConfig.curStep);
             var checkStatus = true;
             var self = this;
             var needCheckData = self.interfaceConfig['step' + self.interfaceConfig.curStep];
@@ -10588,11 +10600,8 @@ var Base = function () {
                 step1: function step1() {},
                 step2: function step2() {},
                 step3: function step3() {
-                    self.checkFormData('ip', 'text', 'DISPLAY_GREEN_ADDRESS');
-                    self.checkFormData('ip', 'text', 'HOSTNAME');
-                    self.checkFormData('ip', 'textarea', 'DISPLAY_GREEN_ADDITIONAL');
-                    self.checkFormData('ip', 'text', 'DOMAINNAME');
-                    self.checkFormData('ip', 'text', 'DISPLAY_GREEN_ADDRESS');
+                    self.checkFormData();
+
                     var step2detail = self.interfaceConfig.stepdetail.step2.detail;
                     var dmzStatus = false;
                     for (var k = 0; k < step2detail.length; k++) {
@@ -10618,6 +10627,38 @@ exports.default = Base;
 
 /***/ }),
 /* 335 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Check = function () {
+	function Check() {
+		_classCallCheck(this, Check);
+	}
+
+	_createClass(Check, [{
+		key: 'checkFormData',
+		value: function checkFormData() {
+			console.log('check ');
+		}
+	}]);
+
+	return Check;
+}();
+
+exports.default = Check;
+
+/***/ }),
+/* 336 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

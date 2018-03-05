@@ -1,5 +1,7 @@
 class Create {
-	
+	createPanelTitle(data){
+		return `<h3 class="panel-title">${data.stepText}</h3>`
+	}
 	createRadio(data){
 		let radio = `<label for="name">${data.text}</label>`
 		for (let i = 0; i < data.detail.length; i++) {
@@ -19,7 +21,7 @@ class Create {
 	            </a>
 	            <a class="next">
 	                <span class="btn-name">下一步</span>
-	                <span class="control-detail">网络参数设置</span>
+	                <span class="control-detail">${data.stepText}</span>
 	            </a>`
 	}
 	createStep(data){

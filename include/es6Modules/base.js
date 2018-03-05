@@ -20,6 +20,7 @@ class Base {
         let config = this.interfaceConfig
         let self = this
         let cur = this.select(`.stepBar .step-${config.curStep}`)
+        if (config.curStep === 1 && config.curStep === config.stepCount) {return}
         if (direction === 'next' && this.checkForm() === false ) {return}
         this.removeClass(`.stepBar .step-${config.curStep} .step-num`, 'current')
         direction === 'next' && this.saveData()
@@ -59,18 +60,17 @@ class Base {
     }
     createStepPanel(){
         let self = this,
-            content = "数据有误",
             data = self.interfaceConfig,
-            contentData = data.stepdetail[`step${data.curStep}`]
+            contentData = data.stepdetail[`step${data.curStep}`],
+            content = self.createPanelTitle(contentData)
         let panel ={
             step1(){
-                content = self.createRadio(contentData)
+                content += self.createRadio(contentData)
             },
             step2(){
                 panel.step1()
             },
             step3(){
-                content = ''
                 contentData = contentData.options
                 for (let i = 0; i < contentData.length; i++) {
                     if (contentData[i].type === 'text') {
@@ -109,10 +109,9 @@ class Base {
 
             },
             step4(){
-                content = self.createText(contentData)
+                content += self.createText(contentData)
             },
             step5(){
-                content = ''
                 contentData = contentData.options
                 for (let i = 0; i < contentData.length; i++) {
                     content += self.createText(contentData[i])
@@ -122,7 +121,7 @@ class Base {
                 panel.step5()
             },
             step7(){
-                content = contentData.text
+                content += contentData.text
             },
             step8(){
                 panel.step7()
@@ -182,6 +181,7 @@ class Base {
         save[`step${self.interfaceConfig.curStep}`]()
     }
     checkForm(){
+        console.log(this.interfaceConfig.curStep)
         let checkStatus = true
         let self = this
         let needCheckData = self.interfaceConfig[`step${self.interfaceConfig.curStep}`]
@@ -193,11 +193,8 @@ class Base {
                 
             },
             step3(){
-                self.checkFormData('ip','text','DISPLAY_GREEN_ADDRESS')
-                self.checkFormData('ip','text','HOSTNAME')
-                self.checkFormData('ip','textarea','DISPLAY_GREEN_ADDITIONAL')
-                self.checkFormData('ip','text','DOMAINNAME')
-                self.checkFormData('ip','text','DISPLAY_GREEN_ADDRESS')
+                self.checkFormData()
+              
                 let step2detail = self.interfaceConfig.stepdetail.step2.detail
                 let dmzStatus = false
                 for (let k = 0; k < step2detail.length; k++) {

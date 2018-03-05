@@ -25,6 +25,10 @@ body,.right-content{
 		max-height: 455px;
     	overflow: auto;
     	@include scroll();
+    	.panel-title{
+    		text-align:center;
+    		padding:10px 0;
+    	}
     	.error-tip{
     		width: 80%;
 		    font-size: 12px;
@@ -36,9 +40,7 @@ body,.right-content{
 
     	}
 	}
-	#footer_btn{
 
-	}
 }
 .stepBar {
     ul {
