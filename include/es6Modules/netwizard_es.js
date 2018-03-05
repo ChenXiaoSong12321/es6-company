@@ -23,17 +23,20 @@ const mix = function(...mixins) {
     return Mix
 }
 class Netwizard extends mix(Create, Animate, Common, SaveData, Base,Check) {
-    constructor(url = '**', nextBtn = '**', prevBtn = '**', interfaceConfig = '**') {
+    constructor(opt) {
         super()
-        this.url = "/cgi-bin/netwizard_new.cgi"
-        this.nextBtn = nextBtn
-        this.prevBtn = prevBtn
-        this.interfaceConfig = {}
+        this.url = opt.get('url') || '/cgi-bin/netwizard_new.cgi'
+        this.nextBtn = opt.get('nextBtn') || '#footer_btn .next'
+        this.prevBtn = opt.get('prevBtn') || '#footer_btn .prev'
+        this.interfaceConfig = opt.get('interfaceConfig') || new Object()
+        this.checkData = opt.get('checkData') || new Map()
+        this.checkOption = new Map()
         this.init()
     }
 
     init() {
         let self = this
+        this.initCheckOption()
         let res = {
             "stepdetail": {
                 "step1": {

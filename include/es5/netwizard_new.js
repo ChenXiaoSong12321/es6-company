@@ -4044,7 +4044,40 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 // es7兼容包
 document.addEventListener('DOMContentLoaded', function () {
 	//DOM渲染完即可执行，此时图片、视频还可能没有加载完
-	var nwz = new _netwizard_es2.default('/cgi-bin/netwizard_new.cgi', '#footer_btn .next', '#footer_btn .prev');
+	var nwzOpt = new Map();
+	nwzOpt.set('url', '/cgi-bin/netwizard_new.cgi').set('checkData', {
+		// step1:{
+		// 	'form_name':'nwzFormstep1',
+		//     			'option':{
+		//     				'RED_TYPE':{
+		//                'type':'radio',
+		//                'required':'1',
+		//                'ass_check':function(eve){
+
+		//                }
+		//           	}
+		// 	}
+		// },
+		step3: {
+			'form_name': 'nwzFormStep3',
+			'option': {
+				'DISPLAY_GREEN_ADDRESS': {
+					'type': 'text',
+					'required': '1',
+					'check': 'ip|',
+					'ass_check': function ass_check(eve) {}
+				},
+				'DISPLAY_GREEN_ADDITIONAL': {
+					'type': 'textarea',
+					'required': '1',
+					'check': 'num|',
+					'ass_check': function ass_check(eve) {}
+				}
+			}
+		}
+		// step4:{}
+	});
+	var nwz = new _netwizard_es2.default(nwzOpt);
 	console.log(nwz);
 });
 
@@ -9717,20 +9750,17 @@ var mix = function mix() {
 var Netwizard = function (_mix) {
     _inherits(Netwizard, _mix);
 
-    function Netwizard() {
-        var url = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '**';
-        var nextBtn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '**';
-        var prevBtn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '**';
-        var interfaceConfig = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '**';
-
+    function Netwizard(opt) {
         _classCallCheck(this, Netwizard);
 
         var _this = _possibleConstructorReturn(this, (Netwizard.__proto__ || Object.getPrototypeOf(Netwizard)).call(this));
 
-        _this.url = "/cgi-bin/netwizard_new.cgi";
-        _this.nextBtn = nextBtn;
-        _this.prevBtn = prevBtn;
-        _this.interfaceConfig = {};
+        _this.url = opt.get('url') || '/cgi-bin/netwizard_new.cgi';
+        _this.nextBtn = opt.get('nextBtn') || '#footer_btn .next';
+        _this.prevBtn = opt.get('prevBtn') || '#footer_btn .prev';
+        _this.interfaceConfig = opt.get('interfaceConfig') || new Object();
+        _this.checkData = opt.get('checkData') || new Map();
+        _this.checkOption = new Map();
         _this.init();
         return _this;
     }
@@ -9739,6 +9769,7 @@ var Netwizard = function (_mix) {
         key: 'init',
         value: function init() {
             var self = this;
+            this.initCheckOption();
             var res = {
                 "stepdetail": {
                     "step1": {
@@ -10426,11 +10457,10 @@ var Base = function () {
         value: function switchStep(direction) {
             var config = this.interfaceConfig;
             var self = this;
-            var cur = this.select('.stepBar .step-' + config.curStep);
             if (config.curStep === 1 && config.curStep === config.stepCount) {
                 return;
             }
-            if (direction === 'next' && this.checkForm() === false) {
+            if (direction === 'next' && this.checkData['step' + config.curStep] && this.checkForm('nwzFormStep' + config.curStep) === false) {
                 return;
             }
             this.removeClass('.stepBar .step-' + config.curStep + ' .step-num', 'current');
@@ -10458,9 +10488,12 @@ var Base = function () {
 
             var panel = this.createStepPanel(this.interfaceConfig);
             this.select('#step_panel').innerHTML = panel;
+            this.checkOption.get('errorItems').clear();
+            if (this.checkData['step' + config.curStep]) {
+                this.checkFormData(this.checkData['step' + config.curStep]);
+            }
 
             this.addClass('.stepBar .step-' + config.curStep + ' .step-num', 'current');
-            cur = this.select('.stepBar .step-' + config.curStep);
         }
     }, {
         key: 'createStepPanel',
@@ -10468,7 +10501,7 @@ var Base = function () {
             var self = this,
                 data = self.interfaceConfig,
                 contentData = data.stepdetail['step' + data.curStep],
-                content = self.createPanelTitle(contentData);
+                content = '<form name="nwzFormStep' + data.curStep + '" id="nwzFormstep' + data.curStep + '" class="nwz-form">\n                            ' + self.createPanelTitle(contentData);
             var panel = {
                 step1: function step1() {
                     content += self.createRadio(contentData);
@@ -10533,6 +10566,7 @@ var Base = function () {
                 }
             };
             panel['step' + data.curStep]();
+            content += '</form>';
             return content;
         }
     }, {
@@ -10591,32 +10625,14 @@ var Base = function () {
         }
     }, {
         key: 'checkForm',
-        value: function checkForm() {
-            console.log(this.interfaceConfig.curStep);
-            var checkStatus = true;
-            var self = this;
-            var needCheckData = self.interfaceConfig['step' + self.interfaceConfig.curStep];
-            var check = {
-                step1: function step1() {},
-                step2: function step2() {},
-                step3: function step3() {
-                    self.checkFormData();
-
-                    var step2detail = self.interfaceConfig.stepdetail.step2.detail;
-                    var dmzStatus = false;
-                    for (var k = 0; k < step2detail.length; k++) {
-                        if (step2detail[k].value.toUpperCase() === 'ORANGE') {
-                            dmzStatus = step2detail[k].checked;
-                        }
-                    }
-                },
-                step4: function step4() {},
-                step5: function step5() {},
-                step6: function step6() {},
-                step7: function step7() {},
-                step8: function step8() {}
-            };
-            return check['step' + self.interfaceConfig.curStep]();
+        value: function checkForm(form_name) {
+            var errorItems = this.checkOption.get('errorItems').get(form_name).size;
+            if (errorItems !== 0) {
+                alert('填写有误，请检查');
+                return false;
+            } else {
+                return true;
+            }
         }
     }]);
 
@@ -10636,6 +10652,8 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -10646,9 +10664,1417 @@ var Check = function () {
 	}
 
 	_createClass(Check, [{
+		key: 'initCheckOption',
+		value: function initCheckOption() {
+			this.checkOption.set('illegalMesg', '非法字符！').set('errorItems', new Map()).set('text_check', {
+				"remoteip": "远程IP",
+				"ip": "IP",
+				"ip_range": "IP范围",
+				"ip_addr_segment": "IP地址段",
+				"ipv6": "ipv6",
+				"ipv6_mask": "ipv6_mask",
+				"ip_mask": "IP/掩码",
+				"mac": "MAC地址",
+				"port": "端口",
+				"port_range": "端口范围",
+				"url": "URL",
+				"domain": "域名",
+				"ip_extend": "ip/路径",
+				"domain_extend": "domain/路径",
+				"name": "应在4-20个字符之间",
+				"specify_name": "指定长度的字符串名称",
+				"mail": "邮箱",
+				"note": "注释",
+				"num": "自然数",
+				"int": "正整数",
+				"float": "正小数",
+				"percent": "百分数",
+				"domain_suffix": "域",
+				"regexp": "正则表达式的合法性",
+				"other": "其他"
+			}).set('option_type', {
+				"text": "文本框",
+				"password": "密码框",
+				"select-one": "单选下拉",
+				"select-multiple": "多选下拉",
+				"checkbox": "复选框",
+				"textarea": "文本域",
+				"radio": "单选框",
+				"file": "文件上传",
+				"date": "日期"
+			}).set('option_name', {
+				"text": "input",
+				"select-one": "select",
+				"select-multiple": "select",
+				"checkbox": "input",
+				"textarea": "textarea",
+				"radio": "input",
+				"file": "input",
+				"password": "input",
+				"date": "input"
+			}).set('required', 1).set('cur_time', 0).set('last_time', 0);
+		}
+	}, {
 		key: 'checkFormData',
-		value: function checkFormData() {
-			console.log('check ');
+		value: function checkFormData(obj) {
+			console.log(obj);
+			// this.checkOption.get('errorItems').add('aaa')
+			this._checkArgument(obj);
+			var option = obj.option;
+			var form_name = obj.form_name;
+			this.checkOption.get('errorItems').set(form_name, new Set());
+			for (var x in option) {
+				this._checkFormOption(option[x], x);
+				this._initArgumentList(option[x]);
+				this._addListenerForFormLists(option[x], x, form_name, option);
+			}
+			// this._addFormSubmit(obj)
+		}
+	}, {
+		key: '_addListenerForFormLists',
+		value: function _addListenerForFormLists(option, name, form_name, obj) {
+			//为每个表单元素添加事件监听
+			var me = this;
+			var cur = me._getCURElementsByName(name, me.checkOption.get('option_name')[option.type], form_name)[0];
+			if (!cur) {
+				return;
+			} else if (option.type == "select-one" || option.type == "select-multiple" || option.type == "checkbox") {
+				if (document.all) {
+					cur.attachEvent("onchange", function () {
+						var cur_value = cur.value;
+						var obj1 = {
+							"option": option,
+							"name": name,
+							"value": cur_value,
+							"form": form_name
+						};
+						me._check_select_checkbox(obj1);
+					});
+				} else {
+					cur.addEventListener("change", function () {
+						var cur_value = cur.value;
+						var obj1 = {
+							"option": option,
+							"name": name,
+							"value": cur_value,
+							"form": form_name
+						};
+						me._check_select_checkbox(obj1);
+					}, true);
+				}
+			} else if (option.type == "password") {
+				if (document.all) {
+					cur.attachEvent("onkeyup", function () {
+						var cur_value = cur.value;
+						var obj1 = {
+							"option": option,
+							"name": name,
+							"value": cur_value,
+							"form": form_name
+						};
+						me._check_password(obj1);
+					});
+				} else {
+					cur.addEventListener("keyup", function (event) {
+						var cur_value = cur.value;
+						var obj1 = {
+							"option": option,
+							"name": name,
+							"value": cur_value,
+							"form": form_name
+						};
+						me._check_password(obj1);
+					}, true);
+				}
+			} else if (option.type == "file") {
+				if (document.all) {
+					cur.attachEvent("onchange", function () {
+						var cur_value = cur.value;
+						var obj1 = {
+							"option": option,
+							"name": name,
+							"value": cur_value,
+							"form": form_name
+						};
+						me._check_file(obj1);
+					});
+				} else {
+					cur.addEventListener("change", function (event) {
+						var cur_value = cur.value;
+						var obj1 = {
+							"option": option,
+							"name": name,
+							"value": cur_value,
+							"form": form_name
+						};
+						me._check_file(obj1);
+					}, true);
+				}
+			} else if (option.type == "text") {
+				this.on(cur, 'blur', function () {
+					var cur_value = cur.value;
+					var obj1 = {
+						"option": option,
+						"method": "keyup",
+						"name": name,
+						"value": cur_value,
+						"form": form_name,
+						"eve": event.target ? event.target : event.srcElement
+					};
+					me._check_text(obj1);
+					//部分需要有关联检测的输入 add by elvis
+					if (option.associated) {
+						me._check_associated(option, form_name, obj, event, "text");
+					}
+				});
+			}
+			// 添加事件监控事件
+			else if (option.type == "date") {
+					$("#add_panel_body_id_for_add_panel").on("change", '#start_time', function () {
+						var cur_value = cur.value;
+						var obj1 = {
+							"option": option,
+							"method": "change",
+							"name": name,
+							"value": cur_value,
+							"form": form_name
+						};
+						obj1.eve = event.srcElement;
+						me._check_text(obj1);
+
+						//部分需要有关联检测的输入 add by elvis
+						if (option.associated) {
+							me._check_associated(option, form_name, obj, event, "text");
+						}
+					});
+					$("#add_panel_body_id_for_add_panel").on("change", '#end_time', function () {
+						var cur_value = cur.value;
+						var obj1 = {
+							"option": option,
+							"method": "change",
+							"name": name,
+							"value": cur_value,
+							"form": form_name
+						};
+						obj1.eve = event.srcElement;
+						me._check_text(obj1);
+
+						//部分需要有关联检测的输入 add by elvis
+						if (option.associated) {
+							me._check_associated(option, form_name, obj, event, "text");
+						}
+					});
+				} else if (option.type == "textarea") {
+					if (document.all) {
+						cur.attachEvent("onblur", function () {
+							var msg = "";
+							var tmp_value = cur.value.replace("\n", "");
+							if (!cur.value || !tmp_value) {
+								if (option.required) {
+									msg = "此项不能为空！";
+								}
+							} else {
+								var _error_obj = {};
+								var textarea = cur.value.split("\n");
+								for (var i = 0; i < textarea.length; i++) {
+									{
+										if (textarea[i]) {
+											var _obj = {
+												"option": option,
+												"name": name,
+												"value": textarea[i]
+											};
+											var temp = me._check_textarea(_obj);
+											//部分需要有关联检测的输入 add by elvis
+											if (option.associated) {
+												me._check_associated(option, form_name, _obj, event, "textarea");
+											}
+											if (temp) {
+												_error_obj[temp] = temp;
+											}
+										}
+									}
+								}
+							}
+							for (var x in error_obj) {
+								msg += x;
+							}
+							me._tip(option, name, msg, form_name);
+						});
+					} else {
+						cur.addEventListener("blur", function () {
+							var msg = "";
+							var tmp_value = cur.value.replace(/\n/g, "");
+							if (!cur.value || !tmp_value) {
+								if (option.required) {
+									msg = "此项不能为空！";
+								}
+							} else {
+								var _error_obj2 = {};
+								var textarea = cur.value.split("\n");
+								if (textarea.length > 1000) {
+									msg = "最多不能超过1000行！";
+								} else {
+									for (var i = 0; i < textarea.length; i++) {
+										{
+											if (textarea[i]) {
+												var _obj2 = {
+													"option": option,
+													"name": name,
+													"value": textarea[i]
+												};
+												var temp = me._check_textarea(_obj2);
+												//部分需要有关联检测的输入 add by elvis
+												if (option.associated) {
+													me._check_associated(option, form_name, _obj2, event, "textarea");
+												}
+												if (temp) _error_obj2[temp] = temp;
+											}
+										}
+									}
+								}
+							}
+							for (var x in error_obj) {
+								msg += x;
+							}
+
+							me._tip(option, name, msg, form_name);
+						}, true);
+					}
+				}
+		}
+	}, {
+		key: '_tip',
+		value: function _tip(option, name, msg, form_name) {
+			msg ? this.checkOption.get('errorItems').get(form_name).add(name) : this.checkOption.get('errorItems').get(form_name).delete(name);
+			console.log(option, name, msg, form_name);
+		}
+	}, {
+		key: '_check_text',
+		value: function _check_text(obj) {
+			var option = obj.option;
+			var name = obj.name;
+			var str = obj.value;
+			var form_name = obj.form;
+			var src = obj.eve;
+			var msg = "",
+			    is_true = 0;
+			var checks = option.check.split("|");
+			var new_checks = new Array();
+			var d = new Date();
+			this.cur_time = d.getTime();
+			var num = 0;
+			for (var i = 0; i < checks.length; i++) {
+				checks[i] = checks[i].replace(" ", "");
+				if (checks[i]) {
+					num++;
+				}
+			}
+			option.required = parseInt(option.required);
+			var option_obj = {
+				"required": option.required,
+				"value": str,
+				"other": option.other_reg,
+				"require": option.required,
+				"form": form_name
+			};
+			if (!src.value && !option.required) {
+				msg = "";
+				this._tip(option, name, msg, form_name);
+				return;
+			}
+			if (num > 1) //check类型为多个时
+				{
+					var _is_true = 0;
+					if (/^\s*$/.test(src.value) && !option.required) {
+						_is_true = 1;
+					} else {
+						for (var _i = 0; _i < checks.length; _i++) {
+							if (checks[_i] == "") continue;
+							var temp = "";
+							if (checks[_i] == "other") {
+								temp = this._check_other(option_obj);
+							} else {
+								temp = this._eval_check(option_obj, checks[_i]);
+							}
+							if (temp == "") _is_true = 1;
+							new_checks[_i] = this.text_check[checks[_i]];
+						}
+						var _temp_str = new_checks.join(",");
+					}
+
+					if (!_is_true) {
+						var temps = src.value;
+						if (this._get_str_byte(temps > 16)) {
+							temps = temps.slice(0, 16) + "...";
+						}
+						msg = /^\s*$/.test(src.value) ? "此项不能为空！" : temps + "输入不合法,应是" + temp_str + "类型";
+						this._tip(option, name, msg, form_name);
+					} else {
+						if (option.ass_check) {
+							//若正常格式检查通过，则进行关联检查
+							var check = option.ass_check;
+							if (!src.value && !parseInt(option.required)) {
+								this._tip(option, name, "", form_name);
+							} else {
+								var _msg = check(this);
+								this._tip(option, name, _msg, form_name);
+							}
+						}
+					}
+				} else {
+				var _check = option.check.replace("|", "");
+				if (_check == 'other') {
+					msg = this._check_other(option_obj);
+				} else {
+					if (!src.value && !option.required) {
+						msg = "";
+					} else {
+						msg = this._eval_check(option_obj, _check);
+					}
+				}
+				if (!msg && option.ass_check) {
+					var _check2 = option.ass_check;
+					msg = _check2(this);
+					this.last_time = this.cur_time;
+				}
+			}
+			this._tip(option, name, msg, form_name);
+		}
+	}, {
+		key: '_eval_check',
+		value: function _eval_check(obj, check_name) {
+			check_name = check_name.split("-");
+			return this['_check_' + check_name[0]](obj);
+		}
+	}, {
+		key: '_check_ip',
+		value: function _check_ip(option) {
+			var required = option.required;
+			var str = option.value;
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.checkOption.get('illegalMesg');
+			} else {
+				str = trimTx;
+			}
+			var msg = "";
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = "IP不能为空！";
+				}
+				return msg;
+			}
+			if (!this.validip(str)) {
+				if (this._get_str_byte(str) > 16) {
+					str = str.slice(0, 16) + "...";
+				}
+
+				msg = str + "不合法,应是IP类型！";
+			}
+			return msg;
+		}
+	}, {
+		key: '_check_remoteip',
+		value: function _check_remoteip(option) {
+			var required = option.required;
+			var str = option.value;
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			var msg = "";
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = "IP不能为空！";
+				}
+				return msg;
+			}
+			if (!this.validremoteip(str)) {
+				if (this._get_str_byte(str) > 16) {
+					str = str.slice(0, 16) + "...";
+				}
+
+				msg = str + "不合法,应是IP类型！";
+			}
+			return msg;
+		}
+	}, {
+		key: '_check_ip_addr_segment',
+		value: function _check_ip_addr_segment(option) {
+			var required = option.required;
+			var str = option.value;
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			var msg = "";
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = "IP地址段不能为空！";
+				}
+				return msg;
+			}
+			if (!this.ip_addr_segment(str)) {
+				if (this._get_str_byte(str) > 16) {
+					str = str.slice(0, 16) + "...";
+				}
+
+				msg = str + "不合法,应是IP地址段类型！";
+			}
+			return msg;
+		}
+	}, {
+		key: '_check_ip_range',
+		value: function _check_ip_range(option) {
+			var required = option.required;
+			var str = option.value;
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			var msg = "";
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = "IP范围不能为空！";
+				}
+				return msg;
+			}
+			if (!this.rangeip(str)) {
+				if (this._get_str_byte(str) > 16) {
+					str = str.slice(0, 16) + "...";
+				}
+
+				msg = str + "不合法,应是IP范围！";
+			}
+			return msg;
+		}
+	}, {
+		key: '_check_ipv6',
+		value: function _check_ipv6(option) {
+			var required = option.required;
+			var str = option.value;
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			var msg = "";
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = "IPV6地址不能为空！";
+				}
+				return msg;
+			}
+			var regex = /^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$/;
+			if (!regex.test(str)) {
+
+				msg = str + "不合法,应是IPV6类型！";
+			}
+			return msg;
+		}
+	}, {
+		key: '_check_ipv6_mask',
+		value: function _check_ipv6_mask(option) {
+			var required = option.required;
+			var str = option.value;
+			var test = new Array();
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			test = str.split("/");
+			var msg = "";
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = "IPV6地址不能为空！";
+				}
+				return msg;
+			}
+			var regex = /^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$/;
+			var regex_mask = /^-?[0-9]\d*$/;
+			if (!regex.test(test[0])) {
+
+				msg = str + "不合法,应是IPV6/掩码类型！";
+				return msg;
+			}
+			if (!regex_mask.test(test[1])) {
+
+				msg = str + "不合法,应是IPV6/掩码类型！";
+				return msg;
+			}
+			test[1] = parseInt(test[1]);
+			if (test[1] < 0 || test[1] > 128) {
+
+				msg = str + "不合法,应是IPV6/掩码类型！";
+				return msg;
+			}
+			return msg;
+		}
+	}, {
+		key: '_check_ip_mask',
+		value: function _check_ip_mask(option) {
+			var required = option.required;
+			var str = option.value;
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			var msg = "";
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = "IP/掩码不能为空！";
+				}
+				return msg;
+			}
+			if (!this.validsegment(str)) {
+				if (this._get_str_byte(str) > 16) {
+					str = str.slice(0, 16) + "...";
+				}
+
+				msg = str + " 输入不合法,应是IP/掩码类型！";
+			}
+			return msg;
+		}
+	}, {
+		key: '_check_port',
+		value: function _check_port(option) {
+			var str = option.value;
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			var required = option.required;
+			var msg = "";
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = "端口号不能为空！";
+				}
+				return msg;
+			}
+			var reg = /^([1-9][0-9]*)$/;
+			if (!(reg.test(str) && RegExp.$1 < 65536 && RegExp.$1 > 0)) {
+				if (this._get_str_byte(str) > 16) {
+					str = str.slice(0, 16) + "...";
+				}
+
+				msg = str + "端口号格式输入错误！";
+			}
+			return msg;
+		}
+	}, {
+		key: '_check_port_range',
+		value: function _check_port_range(option) {
+			var required = option.required;
+			var str = option.value;
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			var msg = "";
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = "端口范围不能为空！";
+				}
+				return msg;
+			}
+			if (/^([1-9]+[0-9]*)[:|-]([1-9]+[0-9]*)$/.test(str)) {
+				if (parseInt(RegExp.$1) > 65535 || parseInt(RegExp.$1) < 0 || parseInt(RegExp.$2) > 65535 || parseInt(RegExp.$2) <= 0) msg = str + "中端口应在0-65535之间";
+				if (parseInt(RegExp.$1) >= parseInt(RegExp.$2)) msg = str + "端口范围中前一个应小于后一个";
+			} else {
+				if (this._get_str_byte(str) > 16) {
+					str = str.slice(0, 16) + "...";
+				}
+
+				msg = str + "端口范围格式错误";
+			}
+			return msg;
+		}
+	}, {
+		key: '_check_mac',
+		value: function _check_mac(option) {
+			var required = option.required;
+			var str = option.value;
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			var msg = "";
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = "MAC地址不能为空！";
+				}
+				return msg;
+			}
+			str = str.replace(/-/g, ":");
+			var reg = /^([\dA-Fa-f]{2}):([\dA-Fa-f]{2}):([\dA-Fa-f]{2}):([\dA-Fa-f]{2}):([\dA-Fa-f]{2}):([\dA-Fa-f]{2})$/;
+			if (!reg.test(str)) {
+				if (this._get_str_byte(str) > 16) {
+					str = str.slice(0, 16) + "...";
+				}
+
+				msg = str + "MAC地址格式输入错误！";
+			}
+			return msg;
+		}
+	}, {
+		key: '_check_num',
+		value: function _check_num(option) {
+			var str = option.value;
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			var required = option.required;
+			var msg = "";
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = "此项不能为空！";
+				}
+				return msg;
+			}
+			if (!/^[1-9][0-9]*$/.test(str)) {
+				if (this._get_str_byte(str) > 16) {
+					str = str.slice(0, 16) + "...";
+				}
+
+				msg = str + "此项应填正整数！";
+			}
+			return msg;
+		}
+	}, {
+		key: '_check_int',
+		value: function _check_int(option) {
+			var str = option.value;
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			var required = option.required;
+			var msg = "";
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = "此项不能为空！";
+				}
+				return msg;
+			}
+			if (!(/^([0-9])+$/.test(str) && (RegExp.$2 && RegExp.$1 != 0 || !RegExp.$2))) {
+				if (this._get_str_byte(str) > 16) {
+					str = str.slice(0, 16) + "...";
+				}
+
+				msg = str + "此项应填0或正整数！";
+			}
+			return msg;
+		}
+	}, {
+		key: '_check_float',
+		value: function _check_float(option) {
+			var str = option.value;
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			var required = option.required;
+			var msg = "";
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = "此项不能为空！";
+				}
+				return msg;
+			}
+			if (!/^[1-9][0-9]*(\.[0-9]+)?$/.test(str)) {
+				if (this._get_str_byte(str) > 16) {
+					str = str.slice(0, 16) + "...";
+				}
+
+				msg = str + "此项应填正小数或正整数！";
+			}
+			return msg;
+		}
+	}, {
+		key: '_check_percent',
+		value: function _check_percent(option) {
+			var str = option.value;
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			var required = option.required;
+			var msg = "";
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = "此项不能为空！";
+				}
+				return msg;
+			}
+			if (!(/^([0-9]+)%$/.test(str) && parseInt(RegExp.$1) <= 100 && parseInt(RegExp.$1) >= 0)) {
+				if (this._get_str_byte(str) > 16) {
+					str = str.slice(0, 16) + "...";
+				}
+
+				msg = str + "此项应填整数百分数！";
+			}
+			return msg;
+		}
+	}, {
+		key: '_check_name',
+		value: function _check_name(option) {
+			var str = option.value;
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			var required = option.required;
+			var msg = "";
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = "此项不能为空！";
+				}
+				return msg;
+			}
+			var reg = /^[0-9a-zA-Z\u4e00-\u9fa5][_0-9a-zA-Z\u4e00-\u9fa5]+$/;
+			var reg2 = /^[0-9]/;
+			if (str.length >= 4 && str.length <= 20) {
+				if (/\s/.test(str)) {
+					msg = str + "含有空格！";
+				}
+				if (reg2.test(str)) {
+					msg = str + "不能以数字开头！";
+				}
+				if (!reg.test(str)) {
+					msg = str + "含有非法字符！";
+				}
+			} else {
+				if (str.length < 4) {
+					msg = str + "应4个字符以上！";
+				}
+				if (str.length >= 20) {
+					if (this._get_str_byte(str) > 16) {
+						str = str.slice(0, 16) + "...";
+					}
+
+					msg = str + "应20个字符以内！";
+				}
+			}
+			return msg;
+		}
+	}, {
+		key: '_check_specify_name',
+		value: function _check_specify_name(option) {
+
+			var str = option.value;
+			var nameLength = str.length;
+			var nameLengthInt = parseInt(nameLength);
+
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			var required = option.required;
+			var msg = "";
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = "此项不能为空！";
+				}
+				return msg;
+			}
+			var reg = /^[0-9a-zA-Z\u4e00-\u9fa5]+$/;
+			var reg2 = /^[0-9]/;
+			if (str.length >= nameLengthInt && str.length <= 20) {
+				if (/\s/.test(str)) {
+					msg = str + "含有空格！";
+				}
+				if (reg2.test(str)) {
+					msg = str + "不能以数字开头！";
+				}
+				if (!reg.test(str)) {
+					msg = str + "含有非法字符！";
+				}
+			} else {
+				if (str.length < nameLengthInt) {
+					msg = str + "至少为" + nameLength + "个字符！";
+				}
+				if (str.length > 20) {
+					if (this._get_str_byte(str) > 16) {
+						str = str.slice(0, 16) + "...";
+					}
+
+					msg = str + "应在20个字符以内！";
+				}
+			}
+			return msg;
+		}
+	}, {
+		key: '_check_mail',
+		value: function _check_mail(option) {
+			var str = option.value;
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			var required = option.required;
+			var msg = "";
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = "邮件地址不能为空！";
+				}
+				return msg;
+			}
+			var reg = /^[-_A-Za-z0-9]+@([_A-Za-z0-9]+\.)+[A-Za-z0-9]{2,3}$/;
+			if (!reg.test(str)) {
+				if (this._get_str_byte(str) > 16) {
+					str = str.slice(0, 16) + "...";
+				}
+
+				msg = str + "邮件地址错误！";
+			}
+			return msg;
+		}
+	}, {
+		key: '_check_note',
+		value: function _check_note(option) {
+			var required = option.required;
+			var str = option.value;
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			var msg = "";
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = "此项不能为空！";
+				}
+				return msg;
+			}
+			if (/[@#\$%\^&\*~`<>,]/.test(str)) {
+				if (this._get_str_byte(str) > 16) {
+					str = str.slice(0, 16) + "...";
+				}
+
+				msg = str + "此项信息包含非法字符！";
+			} else if (str.length > 128) {
+				if (this._get_str_byte(str) > 16) {
+					str = str.slice(0, 16) + "...";
+				}
+
+				msg = str + "此项信息过长，应在128个字符以内！";
+			}
+			return msg;
+		}
+	}, {
+		key: '_check_url',
+		value: function _check_url(option) {
+			var required = option.required;
+			var str = option.value;
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			var msg = "";
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = "此项不能为空！";
+				}
+				return msg;
+			}
+			if (!this.validurl(str)) {
+				if (this._get_str_byte(str) > 16) {
+					str = str.slice(0, 16) + "...";
+				}
+
+				msg = str + "格式错误！";
+				return msg;
+			}
+			return msg;
+		}
+	}, {
+		key: '_check_other',
+		value: function _check_other(option) {
+			var required = option.required;
+			var str = option.value;
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			var reg = option.other;
+			var msg = "";
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = "此项不能为空！";
+				}
+				return msg;
+			}
+			if (/"/.test(str)) {
+				msg = "含有非法字符！";
+				return msg;
+			}
+			if (eval('!' + reg + '.test("' + str + '")')) {
+				if (this._get_str_byte(str) > 16) {
+					str = str.slice(0, 16) + "...";
+				}
+
+				if (option.other_msg) {
+					msg = str + option.other_msg;
+				} else {
+					msg = str + "格式错误！";
+				}
+			}
+			return msg;
+		}
+	}, {
+		key: '_check_domain',
+		value: function _check_domain(option) {
+			var required = option.required;
+			var str = option.value;
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			var msg = "";
+			if (/"/.test(str)) {
+				msg = str + '含有非法字符"';
+				return msg;
+			}
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = " 域名不能为空！";
+				}
+				return msg;
+			}
+			if (!this.validdomainname(str)) {
+				if (this._get_str_byte(str) > 16) {
+					str = str.slice(0, 16) + "...";
+				}
+
+				msg = str + "域名输入错误！";
+			}
+			return msg;
+		}
+	}, {
+		key: '_check_ip_extend',
+		value: function _check_ip_extend(option) {
+			var required = option.required;
+			var str = option.value;
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			var msg = "";
+			if (/"/.test(str)) {
+				msg = str + '含有非法字符"';
+				return msg;
+			}
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = "该项不能为空！";
+				}
+				return msg;
+			} else {
+				var arr = str.split("/");
+				if (arr.length != 2) {
+					return "该项格式错误！";
+				}
+			}
+			if (!this.validip(arr[0]) || !/^[a-zA-Z0-9]+$/.test(arr[1])) {
+				if (this._get_str_byte(str) > 16) {
+					str = str.slice(0, 16) + "...";
+				}
+
+				msg = str + "格式错误！";
+			}
+			return msg;
+		}
+	}, {
+		key: '_check_domain_extend',
+		value: function _check_domain_extend(option) {
+			var required = option.required;
+			var str = option.value;
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			var msg = "";
+			if (/"/.test(str)) {
+				msg = str + '含有非法字符"';
+				return msg;
+			}
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = "该项不能为空！";
+				}
+				return msg;
+			} else {
+				var arr = str.split("/");
+				if (arr.length != 2) {
+					return "该项格式错误！";
+				}
+			}
+			if (!this.validdomainname(arr[0]) || !/^[a-zA-Z0-9]+$/.test(arr[1])) {
+				if (this._get_str_byte(str) > 16) {
+					str = str.slice(0, 16) + "...";
+				}
+
+				msg = str + "格式错误！";
+			}
+			return msg;
+		}
+	}, {
+		key: '_check_regexp',
+		value: function _check_regexp(option) {
+			var required = option.required;
+			var str = option.value;
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			var msg = "";
+			if (/"/.test(str)) {
+				msg = str + '含有非法字符"';
+				return msg;
+			}
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = "正则表达式不能为空！";
+				}
+				return msg;
+			}
+			if (!this.validregexp(str)) {
+				if (this._get_str_byte(str) > 16) {
+					str = str.slice(0, 16) + "...";
+				}
+
+				msg = str + "非法的正则表达式！";
+			}
+			return msg;
+		}
+	}, {
+		key: '_check_domain_suffix',
+		value: function _check_domain_suffix(option) {
+			var required = option.required;
+			var str = option.value;
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			var msg = "";
+			if (/"/.test(str)) {
+				msg = str + '含有非法字符"';
+				return msg;
+			}
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = " 域不能为空！";
+				}
+				return msg;
+			}
+			if (!this.validdomain_suffix(str)) {
+				if (this._get_str_byte(str) > 16) {
+					str = str.slice(0, 16) + "...";
+				}
+
+				msg = str + "域输入错误！";
+			}
+			return msg;
+		}
+	}, {
+		key: 'validdomainname',
+		value: function validdomainname(str) {
+			var reg = /^[0-9a-zA-Z]+[0-9a-zA-Z\.-]*\.[a-zA-Z]{2,4}$/;
+			var regnum = /^(\d+\.)+\d+$/;
+			if (str == "localdomain") {
+				return true;
+			}
+			if (regnum.test(str)) {
+				return false;
+			}
+			return reg.test(str);
+		}
+	}, {
+		key: 'validregexp',
+		value: function validregexp(str) {
+			try {
+				new RegExp(str);
+			} catch (e) {
+				return false;
+			}
+			return true;
+		}
+	}, {
+		key: 'validdomain_suffix',
+		value: function validdomain_suffix(str) {
+			var reg = /^[A-Za-z0-9+\.]+([-A-Za-z0-9]+\.)+[A-Za-z0-9]{2,6}$/;
+			var reg2 = /^[A-Za-z0-9]{2,6}$/;
+			var regnum = /^(\d+\.)+\d+$/;
+			if (str == "localdomain") {
+				return true;
+			}
+			if (regnum.test(str)) {
+				return false;
+			}
+			if (reg2.test(str)) {
+				return true;
+			}
+			return reg.test(str);
+		}
+	}, {
+		key: 'validip',
+		value: function validip(str) {
+			var ip = /^([1-9]|[1-9]\d|1\d{2}|2[0-1]\d|22[0-3])(\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])){3}$/;
+			var flag = ip.test(str);
+			var ip_0 = /\.0$/; //ip地址的最后一位不允许为0,
+			if (ip_0.test(str)) {
+				flag = false;
+			}
+			return flag;
+		}
+	}, {
+		key: 'validremoteip',
+		value: function validremoteip(str) {
+			var ip = /^([0-9]|[1-9]\d|1\d{2}|2[0-1]\d|22[0-3])(\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])){3}$/;
+			var flag = ip.test(str);
+			return flag;
+		}
+		//部分需要有关联检测的输入的函数主体
+
+	}, {
+		key: '_check_associated',
+		value: function _check_associated(option, form_name, obj, event, type) {
+			var me = this;
+			var associated = option.associated.split("|");
+			var objs = void 0;
+			for (var i in associated) {
+				var cur_ass = me._getCURElementsByName(associated[i], me.option_name[option.type], form_name)[0];
+				var cur_value_ass = cur_ass.value;
+				for (var x in obj) {
+					if (x == associated[i]) {
+						objs = {
+							"option": obj[x],
+							"method": "keyup",
+							"name": associated[i],
+							"value": cur_value_ass,
+							"form": form_name
+						};
+					}
+				}
+				if (cur_value_ass) {
+					objs.eve = event.target ? event.target : event.srcElement;
+					if (type == "text") {
+						me._check_text(objs);
+					}
+					if (type == "textarea") {
+						me._check_textarea(objs);
+					}
+				}
+			}
+		}
+	}, {
+		key: 'trim',
+		value: function trim(str) {
+			var reg = /[><]/;
+			if (reg.test(str)) {
+				return false;
+			}
+			return str.replace(/^\s+|\s+$/g, "");
+		}
+	}, {
+		key: '_getCURElementsByName',
+		value: function _getCURElementsByName(name, tag, form_name) {
+			//取某标签form下的名字为name的tag元素
+			if (!document.all) {
+				//pj:在非IE浏览器下,modify the document not exist;
+				// var e = document.getElementsByName(form_name)[0].getElementsByTagName(tag); 
+				var e = document.getElementsByName(form_name).length == 0 ? [] : document.getElementsByName(form_name)[0].getElementsByTagName(tag);
+				var returns = new Array();
+				for (var i = 0; i < e.length; i++) {
+					if (e[i].getAttribute("name") == name) {
+						returns[returns.length] = e[i];
+					};
+				}
+			} else {
+				var con = this._getElementsByName(form_name, "form")[0];
+				returns = new Array();
+				var e = con.getElementsByTagName(tag);
+				for (var i = 0; i < e.length; i++) {
+					if (e[i].getAttribute("name") == name) {
+						returns[returns.length] = e[i];
+					}
+				}
+			}
+			return returns;
+		}
+	}, {
+		key: '_check_other',
+		value: function _check_other(option) {
+			var required = option.required;
+			var str = option.value;
+			var trimTx = this.trim(str);
+			if (trimTx === false) {
+				return this.illegalMesg;
+			} else {
+				str = trimTx;
+			}
+			var reg = option.other;
+			var msg = "";
+			if (typeof str == "undefined" || str == "") {
+				if (required) {
+					msg = "此项不能为空！";
+				}
+				return msg;
+			}
+			if (/"/.test(str)) {
+				msg = "含有非法字符！";
+				return msg;
+			}
+			if (eval('!' + reg + '.test("' + str + '")')) {
+				if (this._get_str_byte(str) > 16) {
+					str = str.slice(0, 16) + "...";
+				}
+
+				if (option.other_msg) {
+					msg = str + option.other_msg;
+				} else {
+					msg = str + "格式错误！";
+				}
+			}
+			return msg;
+		}
+	}, {
+		key: '_get_str_byte',
+		value: function _get_str_byte(str) {
+			var bytes = 0;
+			for (var i = 0; i < str.length; i++) {
+				if (str.charCodeAt(i) > 255) {
+					bytes += 2;
+				} else {
+					bytes += 1;
+				}
+			}
+			return bytes;
+		}
+	}, {
+		key: '_initArgumentList',
+		value: function _initArgumentList(option) {
+			//初始化参数列表
+			option.required = typeof option.required == 'undefined' ? this.checkOption.get(required) : parseInt(option.required); //默认是必须填写，不能为空
+		}
+	}, {
+		key: '_checkFormOption',
+		value: function _checkFormOption(option, x) {
+			//检查传入的表单对象的属性是否符合规范
+			var cur = this._getElementsByName(x, this.checkOption.get('option_name')[option.type]);
+			if (!cur[0]) {
+				return;
+			} else if (option.check == "other" && !option.other_reg) {
+				alert(x + '\u7684\u7C7B\u578B\u4E3A\u5176\u4ED6\uFF0C\u5219reg\u9009\u9879\u4E3A\u5FC5\u9009');
+				return;
+			} else if (option.check && (cur[0].type == "text" || option.type == "textarea")) {
+
+				var checks = option.check.split("|");
+				var unexites = 0;
+				var check_error = "";
+				for (var i = 0; i < checks.length; i++) {
+					checks[i] = checks[i].split("-")[0];
+					if (!checks[i]) {
+						break;
+					}
+					if (!this.checkOption.get('text_check')[checks[i]]) {
+						unexites = 1;
+						check_error = checks[i];
+						break;
+					}
+				}
+				if (unexites) {
+					alert(x + '\u8868\u5355\u5143\u7D20\u7684check\u5B57\u6BB5\u51FA\u73B0\u4E86' + check_error + '\u7C7B\u578B\uFF0C\u4F46\u662F\u6211\u4EEC\u672A\u5B9A\u4E49\u8FD9\u79CD\u68C0\u67E5\u65B9\u6CD5\uFF0C\u4F60\u662F\u4E0D\u662F\u5199\u9519\u5566~');
+					return;
+				}
+			}
+		}
+	}, {
+		key: '_checkArgument',
+		value: function _checkArgument(obj) {
+			//检查传入参数的正确性
+			if (!obj) {
+				alert("验证表单没有传入参数！");
+				return;
+			}
+			if ((typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) != "object") {
+				alert("传入的参数不是对象！");
+				return;
+			}
+			if (!obj.form_name) {
+				alert("要检查的表单名form_name字段没写或者为空！");
+				return;
+			}
+			if (!this._getElementsByName(obj.form_name, "form")) {
+				alert('\u6CA1\u6709\u627E\u5230\u8868\u5355\u540D\u4E3A' + obj.form_name + '\u7684\u8868\u5355\uFF0C\u68C0\u67E5\u4E00\u4E0B\u8868\u5355\u540D\u79F0\u5199\u5BF9\u6CA1\uFF01');
+				return;
+			}
+		}
+	}, {
+		key: '_getElementsByName',
+		value: function _getElementsByName(name, tag) {
+			if (!document.all) {
+				return document.getElementsByName(name);
+			} else {
+				var _returns = document.getElementsByName(name);
+				if (_returns.length > 0) return _returns;
+				_returns = new Array();
+				var e = document.getElementsByTagName(tag);
+				for (var i = 0; i < e.length; i++) {
+					if (e[i].getAttribute("name") == name) {
+						_returns[_returns.length] = e[i];
+					}
+				}
+			}
+			return returns;
 		}
 	}]);
 

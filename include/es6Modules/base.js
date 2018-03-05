@@ -19,9 +19,8 @@ class Base {
     switchStep(direction) {
         let config = this.interfaceConfig
         let self = this
-        let cur = this.select(`.stepBar .step-${config.curStep}`)
         if (config.curStep === 1 && config.curStep === config.stepCount) {return}
-        if (direction === 'next' && this.checkForm() === false ) {return}
+        if (direction === 'next' && this.checkData[`step${config.curStep}`] && this.checkForm(`nwzFormStep${config.curStep}`) === false ) {return}
         this.removeClass(`.stepBar .step-${config.curStep} .step-num`, 'current')
         direction === 'next' && this.saveData()
         if (direction === 'next' && config.curStep < config.stepCount) {
@@ -53,16 +52,19 @@ class Base {
 
         let panel = this.createStepPanel(this.interfaceConfig)
         this.select('#step_panel').innerHTML = panel
-
+        this.checkOption.get('errorItems').clear()
+        if (this.checkData[`step${config.curStep}`]) {
+            this.checkFormData(this.checkData[`step${config.curStep}`])
+        }
 
         this.addClass(`.stepBar .step-${config.curStep} .step-num`, 'current')
-        cur = this.select(`.stepBar .step-${config.curStep}`)
     }
     createStepPanel(){
         let self = this,
             data = self.interfaceConfig,
             contentData = data.stepdetail[`step${data.curStep}`],
-            content = self.createPanelTitle(contentData)
+            content = `<form name="nwzFormStep${data.curStep}" id="nwzFormstep${data.curStep}" class="nwz-form">
+                            ${self.createPanelTitle(contentData)}`
         let panel ={
             step1(){
                 content += self.createRadio(contentData)
@@ -128,6 +130,7 @@ class Base {
             }
         }
         panel['step'+data.curStep]()
+        content += `</form>`
         return content
     }
     saveData() {
@@ -180,45 +183,15 @@ class Base {
         }
         save[`step${self.interfaceConfig.curStep}`]()
     }
-    checkForm(){
-        console.log(this.interfaceConfig.curStep)
-        let checkStatus = true
-        let self = this
-        let needCheckData = self.interfaceConfig[`step${self.interfaceConfig.curStep}`]
-        let check = {
-            step1(){
-                
-            },
-            step2(){
-                
-            },
-            step3(){
-                self.checkFormData()
-              
-                let step2detail = self.interfaceConfig.stepdetail.step2.detail
-                let dmzStatus = false
-                for (let k = 0; k < step2detail.length; k++) {
-                    if(step2detail[k].value.toUpperCase() === 'ORANGE') {dmzStatus = step2detail[k].checked}
-                }
-
-            },
-            step4(){
-                
-            },
-            step5(){
-                
-            },
-            step6(){
-                
-            },
-            step7(){
-                
-            },
-            step8(){
-                
-            }
+    checkForm(form_name){
+        let errorItems = this.checkOption.get('errorItems').get(form_name).size
+        if (errorItems !== 0) {
+            alert('填写有误，请检查')
+            return false
+        }else{
+            return true
         }
-        return check[`step${self.interfaceConfig.curStep}`]()
+        
     }
 }
 
