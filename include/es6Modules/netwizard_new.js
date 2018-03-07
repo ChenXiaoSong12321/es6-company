@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded',function(){
 	//DOM渲染完即可执行，此时图片、视频还可能没有加载完
 	const nwzOpt = new Map()
 	nwzOpt.set('url','/cgi-bin/netwizard_new.cgi')
+	
 		.set('checkData',{
 			// step1:{
 			// 	'form_name':'nwzFormstep1',
@@ -33,7 +34,7 @@ document.addEventListener('DOMContentLoaded',function(){
 	            	'DISPLAY_GREEN_ADDITIONAL':{
 		                'type':'textarea',
 		                'required':'1',
-		                'check':'num|',
+		                'check':'ip|',
 		                'ass_check':function(eve){
 		                   
 		                }

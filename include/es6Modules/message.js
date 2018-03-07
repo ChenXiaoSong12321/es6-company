@@ -1,11 +1,11 @@
 class Message{
-	init{
+	init(){
 		
 	}
-	createMsg{
+	createMsg(){
 		
 	}
-	showMsg{
+	showMsg(){
 
 	}
 }

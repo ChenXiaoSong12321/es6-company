@@ -30,8 +30,8 @@ class Common{
 		return count;
 	}
 	// 绑定事件
-	on(el,eventName,handle){
-		el.addEventListener ? el.addEventListener(eventName, handle) : el.attachEvent(`on${eventName}`, handle)
+	on(el,eventName,handle,useCapture=false){
+		el.addEventListener ? el.addEventListener(eventName, handle,useCapture) : el.attachEvent(`on${eventName}`, handle)
 		return el
 	}
 

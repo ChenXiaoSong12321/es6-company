@@ -4070,7 +4070,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				'DISPLAY_GREEN_ADDITIONAL': {
 					'type': 'textarea',
 					'required': '1',
-					'check': 'num|',
+					'check': 'ip|',
 					'ass_check': function ass_check(eve) {}
 				}
 			}
@@ -9879,16 +9879,16 @@ var Netwizard = function (_mix) {
                             "options": [{
                                 "text": "IP 地址*",
                                 "type": "text",
-                                "name": "DISPLAY_ORANGE_ADDRESS",
+                                "name": "DISPLAY_ORANGE_ADDRESS1",
                                 "value": "192.168.11.181"
                             }, {
                                 "text": "附加IP地址",
                                 "type": "textarea",
-                                "name": "DISPLAY_GREEN_ADDITIONAL",
+                                "name": "DISPLAY_GREEN_ADDITIONAL1",
                                 "value": "192.168.11.181&3.3.3.3"
                             }, {
                                 "text": "子网掩码*",
-                                "name": "DISPLAY_ORANGE_NETMASK",
+                                "name": "DISPLAY_ORANGE_NETMASK1",
                                 "type": "select",
                                 "options": [{
                                     "value": "0",
@@ -10155,15 +10155,6 @@ var Animate = function () {
 			});
 		}
 	}, {
-		key: 'once',
-		value: function once(dom, type, callback) {
-			var handle = function handle() {
-				callback();
-				dom.removeEventListener(type, handle);
-			};
-			dom.addEventListener(type, handle);
-		}
-	}, {
 		key: 'listenOnce',
 		value: function listenOnce(node, type, listener) {
 			var useCapture = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
@@ -10286,7 +10277,9 @@ var Common = function () {
 	}, {
 		key: 'on',
 		value: function on(el, eventName, handle) {
-			el.addEventListener ? el.addEventListener(eventName, handle) : el.attachEvent('on' + eventName, handle);
+			var useCapture = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+
+			el.addEventListener ? el.addEventListener(eventName, handle, useCapture) : el.attachEvent('on' + eventName, handle);
 			return el;
 		}
 
@@ -10747,77 +10740,38 @@ var Check = function () {
 			if (!cur) {
 				return;
 			} else if (option.type == "select-one" || option.type == "select-multiple" || option.type == "checkbox") {
-				if (document.all) {
-					cur.attachEvent("onchange", function () {
-						var cur_value = cur.value;
-						var obj1 = {
-							"option": option,
-							"name": name,
-							"value": cur_value,
-							"form": form_name
-						};
-						me._check_select_checkbox(obj1);
-					});
-				} else {
-					cur.addEventListener("change", function () {
-						var cur_value = cur.value;
-						var obj1 = {
-							"option": option,
-							"name": name,
-							"value": cur_value,
-							"form": form_name
-						};
-						me._check_select_checkbox(obj1);
-					}, true);
-				}
+				this.on(cur, 'change', function () {
+					var cur_value = cur.value;
+					var obj1 = {
+						"option": option,
+						"name": name,
+						"value": cur_value,
+						"form": form_name
+					};
+					me._check_select_checkbox(obj1);
+				}, true);
 			} else if (option.type == "password") {
-				if (document.all) {
-					cur.attachEvent("onkeyup", function () {
-						var cur_value = cur.value;
-						var obj1 = {
-							"option": option,
-							"name": name,
-							"value": cur_value,
-							"form": form_name
-						};
-						me._check_password(obj1);
-					});
-				} else {
-					cur.addEventListener("keyup", function (event) {
-						var cur_value = cur.value;
-						var obj1 = {
-							"option": option,
-							"name": name,
-							"value": cur_value,
-							"form": form_name
-						};
-						me._check_password(obj1);
-					}, true);
-				}
+				this.on(cur, 'keyup', function () {
+					var cur_value = cur.value;
+					var obj1 = {
+						"option": option,
+						"name": name,
+						"value": cur_value,
+						"form": form_name
+					};
+					me._check_password(obj1);
+				}, true);
 			} else if (option.type == "file") {
-				if (document.all) {
-					cur.attachEvent("onchange", function () {
-						var cur_value = cur.value;
-						var obj1 = {
-							"option": option,
-							"name": name,
-							"value": cur_value,
-							"form": form_name
-						};
-						me._check_file(obj1);
-					});
-				} else {
-					cur.addEventListener("change", function (event) {
-						var cur_value = cur.value;
-						var obj1 = {
-							"option": option,
-							"name": name,
-							"value": cur_value,
-							"form": form_name
-						};
-						me._check_file(obj1);
-					}, true);
-				}
+				this.on(cur, 'change', function () {
+					var cur_value = cur.value;
+					var obj1 = {
+						"option": option,
+						"name": name,
+						"value": cur_value,
+						"form": form_name
+					};
+					me._check_file(obj1);
+				}, true);
 			} else if (option.type == "text") {
 				this.on(cur, 'blur', function () {
 					var cur_value = cur.value;
@@ -10830,132 +10784,56 @@ var Check = function () {
 						"eve": event.target ? event.target : event.srcElement
 					};
 					me._check_text(obj1);
-					//部分需要有关联检测的输入 add by elvis
+					//部分需要有关联检测的输入 
 					if (option.associated) {
 						me._check_associated(option, form_name, obj, event, "text");
 					}
 				});
 			}
 			// 添加事件监控事件
-			else if (option.type == "date") {
-					$("#add_panel_body_id_for_add_panel").on("change", '#start_time', function () {
-						var cur_value = cur.value;
-						var obj1 = {
-							"option": option,
-							"method": "change",
-							"name": name,
-							"value": cur_value,
-							"form": form_name
-						};
-						obj1.eve = event.srcElement;
-						me._check_text(obj1);
-
-						//部分需要有关联检测的输入 add by elvis
-						if (option.associated) {
-							me._check_associated(option, form_name, obj, event, "text");
-						}
-					});
-					$("#add_panel_body_id_for_add_panel").on("change", '#end_time', function () {
-						var cur_value = cur.value;
-						var obj1 = {
-							"option": option,
-							"method": "change",
-							"name": name,
-							"value": cur_value,
-							"form": form_name
-						};
-						obj1.eve = event.srcElement;
-						me._check_text(obj1);
-
-						//部分需要有关联检测的输入 add by elvis
-						if (option.associated) {
-							me._check_associated(option, form_name, obj, event, "text");
-						}
-					});
-				} else if (option.type == "textarea") {
-					if (document.all) {
-						cur.attachEvent("onblur", function () {
-							var msg = "";
-							var tmp_value = cur.value.replace("\n", "");
-							if (!cur.value || !tmp_value) {
-								if (option.required) {
-									msg = "此项不能为空！";
-								}
-							} else {
-								var _error_obj = {};
-								var textarea = cur.value.split("\n");
-								for (var i = 0; i < textarea.length; i++) {
-									{
-										if (textarea[i]) {
-											var _obj = {
-												"option": option,
-												"name": name,
-												"value": textarea[i]
-											};
-											var temp = me._check_textarea(_obj);
-											//部分需要有关联检测的输入 add by elvis
-											if (option.associated) {
-												me._check_associated(option, form_name, _obj, event, "textarea");
-											}
-											if (temp) {
-												_error_obj[temp] = temp;
-											}
+			else if (option.type == "date") {} else if (option.type == "textarea") {
+					this.on(cur, 'blur', function () {
+						var msg = "";
+						var tmp_value = cur.value.replace("\n", "");
+						var error_obj = {};
+						if (!cur.value || !tmp_value) {
+							if (option.required) {
+								msg = "此项不能为空！";
+							}
+						} else {
+							var textarea = cur.value.split("\n");
+							for (var i = 0; i < textarea.length; i++) {
+								{
+									if (textarea[i]) {
+										var _obj = {
+											"option": option,
+											"name": name,
+											"value": textarea[i]
+										};
+										var temp = me._check_textarea(_obj);
+										//部分需要有关联检测的输入 
+										if (option.associated) {
+											me._check_associated(option, form_name, _obj, event, "textarea");
+										}
+										if (temp) {
+											error_obj[temp] = temp;
 										}
 									}
 								}
 							}
-							for (var x in error_obj) {
-								msg += x;
-							}
-							me._tip(option, name, msg, form_name);
-						});
-					} else {
-						cur.addEventListener("blur", function () {
-							var msg = "";
-							var tmp_value = cur.value.replace(/\n/g, "");
-							if (!cur.value || !tmp_value) {
-								if (option.required) {
-									msg = "此项不能为空！";
-								}
-							} else {
-								var _error_obj2 = {};
-								var textarea = cur.value.split("\n");
-								if (textarea.length > 1000) {
-									msg = "最多不能超过1000行！";
-								} else {
-									for (var i = 0; i < textarea.length; i++) {
-										{
-											if (textarea[i]) {
-												var _obj2 = {
-													"option": option,
-													"name": name,
-													"value": textarea[i]
-												};
-												var temp = me._check_textarea(_obj2);
-												//部分需要有关联检测的输入 add by elvis
-												if (option.associated) {
-													me._check_associated(option, form_name, _obj2, event, "textarea");
-												}
-												if (temp) _error_obj2[temp] = temp;
-											}
-										}
-									}
-								}
-							}
-							for (var x in error_obj) {
-								msg += x;
-							}
-
-							me._tip(option, name, msg, form_name);
-						}, true);
-					}
+						}
+						for (var x in error_obj) {
+							msg += x;
+						}
+						me._tip(option, name, msg, form_name);
+					});
 				}
 		}
 	}, {
 		key: '_tip',
 		value: function _tip(option, name, msg, form_name) {
 			msg = msg ? msg : '';
-			var el = 'form[name="' + form_name + '"] input[name="' + name + '"]';
+			var el = 'form[name="' + form_name + '"] ' + this.checkOption.get('option_name')[option.type] + '[name="' + name + '"]';
 			this.removeClass(el, 'error-input right-input');
 			if (msg) {
 				this.checkOption.get('errorItems').get(form_name).add(name);
@@ -11061,6 +10939,94 @@ var Check = function () {
 				}
 			}
 			this._tip(option, name, msg, form_name);
+		}
+	}, {
+		key: '_check_textarea',
+		value: function _check_textarea(object) {
+			var option = object.option;
+			var name = object.name;
+			var str = object.value,
+			    msg = "",
+			    new_msg = "",
+			    required = option.required,
+			    is_error = 1,
+			    is_error1 = 1,
+			    is_error2 = 1,
+			    new_checks = new Array();
+
+			var check_item = option.check.split("|");
+			var num = 0;
+			for (var i = 0; i < check_item.length; i++) {
+				check_item[i] = check_item[i].replace(" ", "");
+				if (check_item[i]) {
+					num++;
+				}
+			}
+			option.required = parseInt(option.required);
+			var option_obj = {
+				"value": str,
+				"other": option.other_reg,
+				"required": option.required
+			};
+			if (num > 1) {
+				for (var i = 0; i < check_item.length; i++) {
+					if (!check_item[i]) {
+						continue;
+					}
+					if (check_item[i] == 'other') {
+						msg = this._check_other(option_obj);
+					} else {
+						msg1 = this._eval_check(option_obj, check_item[i]);
+						if (!msg1) is_error1 = 0;
+					}
+					if (!msg1 && option.ass_check) {
+						//若正常格式检查通过，则进行关联检查
+						if (!str && !option.required) {
+							msg = "";
+						} else {
+							var check = option.ass_check;
+							if (check(this)) {
+								var msg2 = check(this);
+							}
+							if (!msg2) is_error2 = 0;
+						}
+					}
+					new_checks[i] = this.text_check[check_item[i]];
+				}
+				var temp_str = new_checks.join(",");
+				if (is_error1) {
+					if (this._get_str_byte(str) > 16) {
+						str = str.slice(0, 16) + "...";
+					}
+
+					new_msg = str + "不合法,该是" + temp_str + "类型";
+				} else if (is_error2 && option.ass_check) {
+					var check = option.ass_check;
+					if (check(this)) {
+						new_msg = check(this);
+					}
+				}
+			} else {
+				var check = option.check.replace("|", "");
+				if (check == 'other') {
+					new_msg = this._check_other(option_obj);
+				} else {
+					new_msg = this._eval_check(option_obj, check);
+				}
+
+				if (!new_msg && option.ass_check) {
+					//若正常格式检查通过，则进行关联检查
+					if (!str && !option.required) {
+						new_msg = "";
+					} else {
+						var check = option.ass_check;
+						if (check(this)) {
+							new_msg = check(this);
+						}
+					}
+				}
+			}
+			return new_msg;
 		}
 	}, {
 		key: '_eval_check',

@@ -161,18 +161,18 @@ class Netwizard extends mix(Create, Animate, Common, SaveData, Base,Check) {
                             "options": [{
                                     "text": "IP 地址*",
                                     "type": "text",
-                                    "name": "DISPLAY_ORANGE_ADDRESS",
+                                    "name": "DISPLAY_ORANGE_ADDRESS1",
                                     "value": "192.168.11.181"
                                 },
                                 {
                                     "text": "附加IP地址",
                                     "type": "textarea",
-                                    "name": "DISPLAY_GREEN_ADDITIONAL",
+                                    "name": "DISPLAY_GREEN_ADDITIONAL1",
                                     "value": "192.168.11.181&3.3.3.3"
                                 },
                                 {
                                     "text": "子网掩码*",
-                                    "name": "DISPLAY_ORANGE_NETMASK",
+                                    "name": "DISPLAY_ORANGE_NETMASK1",
                                     "type": "select",
                                     "options": [{
                                             "value": "0",
