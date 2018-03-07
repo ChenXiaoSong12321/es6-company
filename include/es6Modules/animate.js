@@ -9,13 +9,7 @@ class Animate{
  		})
 
 	}
-	once(dom, type, callback) {  
-	    var handle = function() {  
-	        callback() 
-	        dom.removeEventListener(type, handle)
-	    }  
-	    dom.addEventListener(type, handle)  
-	}
+
 	listenOnce(node, type, listener, useCapture=false)  {
 		type = type.split(/\ +/)
 	    let wrapper = (event) => {

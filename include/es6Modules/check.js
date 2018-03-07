@@ -159,7 +159,7 @@ class Check{
 						"eve": event.target ? event.target : event.srcElement
 					}
 					me._check_text(obj1)
-					//部分需要有关联检测的输入 add by elvis
+					//部分需要有关联检测的输入 
 					if (option.associated) {
 						me._check_associated(option, form_name, obj, event, "text")
 					}
@@ -179,7 +179,7 @@ class Check{
 				obj1.eve = event.srcElement
 				me._check_text(obj1)
 
-				//部分需要有关联检测的输入 add by elvis
+				//部分需要有关联检测的输入 
 				if (option.associated) {
 					me._check_associated(option, form_name, obj, event, "text")
 				}
@@ -197,7 +197,7 @@ class Check{
 				obj1.eve = event.srcElement
 				me._check_text(obj1)
 
-				//部分需要有关联检测的输入 add by elvis
+				//部分需要有关联检测的输入 
 				if (option.associated) {
 					me._check_associated(option, form_name, obj, event, "text")
 				}
@@ -225,7 +225,7 @@ class Check{
 										"value": textarea[i]
 									}
 									let temp = me._check_textarea(obj)
-									//部分需要有关联检测的输入 add by elvis
+									//部分需要有关联检测的输入 
 									if (option.associated) {
 										me._check_associated(option, form_name, obj, event, "textarea")
 									}
@@ -264,7 +264,7 @@ class Check{
 											"value": textarea[i]
 										}
 										let temp = me._check_textarea(obj)
-										//部分需要有关联检测的输入 add by elvis
+										//部分需要有关联检测的输入 
 										if (option.associated) {
 											me._check_associated(option, form_name, obj, event, "textarea")
 										}
