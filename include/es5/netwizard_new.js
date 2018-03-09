@@ -9672,6 +9672,10 @@ var _saveData = __webpack_require__(336);
 
 var _saveData2 = _interopRequireDefault(_saveData);
 
+var _message = __webpack_require__(337);
+
+var _message2 = _interopRequireDefault(_message);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -10031,7 +10035,7 @@ var Netwizard = function (_mix) {
     }]);
 
     return Netwizard;
-}(mix(_create2.default, _animate2.default, _common2.default, _saveData2.default, _base2.default, _check2.default));
+}(mix(_create2.default, _animate2.default, _common2.default, _saveData2.default, _base2.default, _check2.default, _message2.default));
 
 exports.default = Netwizard;
 
@@ -10629,7 +10633,8 @@ var Base = function () {
         value: function checkForm(form_name) {
             var errorItems = this.checkOption.get('errorItems').get(form_name).size;
             if (errorItems !== 0) {
-                alert('填写有误，请检查');
+                alert('您输入的表单有误，请检查！');
+                // this.showErrorMsg('您输入的表单有误，请检查！',form_name)
                 return false;
             } else {
                 return true;
@@ -12143,6 +12148,67 @@ var SaveData = function () {
 }();
 
 exports.default = SaveData;
+
+/***/ }),
+/* 337 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Message = function () {
+	function Message() {
+		_classCallCheck(this, Message);
+	}
+
+	_createClass(Message, [{
+		key: 'init',
+		value: function init() {}
+	}, {
+		key: 'createMsg',
+		value: function createMsg(msg, form_name, type) {
+			return '<div id="msg_for_' + form_name + '" class="msg-tip msg-tip-' + type + '">\n\t\t\t\t\t<div >\n\t   \t\t\t\t\t<p><button type="button">\xD7</button></p>\n\t\t\t\t\t   \t<span data-notify="icon"></span>\n\t\t\t\t\t   \t<span data-notify="title"></span>\n\t\t\t\t\t\t<p><span data-notify="message">' + msg + '</span></p>\n\t\t\t\t\t   \t<a href="#" target="_blank" data-notify="url"></a>\n\t\t\t\t   \t</div>\n\t\t\t\t</div>';
+		}
+	}, {
+		key: 'showErrorMsg',
+		value: function showErrorMsg(msg, form_name) {
+			var self = this;
+			var msgHtml = this.createMsg(msg, form_name, 'err');
+			this.select('body').innerHTML += msgHtml;
+			this.slideShow('#msg_for_' + form_name, 'slideInRight', 'animated');
+			setTimeout(function () {}, 3000);
+		}
+	}, {
+		key: 'showInfoMsg',
+		value: function showInfoMsg() {}
+	}, {
+		key: 'showWarnMsg',
+		value: function showWarnMsg() {}
+	}, {
+		key: 'showRightMsg',
+		value: function showRightMsg() {}
+	}]);
+
+	return Message;
+}();
+// <div>
+//   <button type="button">×</button>
+//   <span data-notify="icon"></span>
+//   <span data-notify="title"></span>
+//   <span data-notify="message">表单填写中有误</span>
+//   <a href="#" target="_blank" data-notify="url"></a>
+// </div>
+
+
+exports.default = Message;
 
 /***/ })
 /******/ ]);

@@ -206,3 +206,35 @@ body,.right-content{
 
 	}
 }
+
+div.msg-tip{
+	position:absolute;
+	padding:10px;
+	right:30px;
+	top:30px;
+	color:#fff;
+	    border-radius: 5px;
+	    font-weight:bold;
+	p:first-child{
+		height:6px;
+	}
+	p:last-child{
+		line-height:20px;
+	}
+	button[type="button"]{
+		position:absolute;
+		right:5px;
+		top:5px;
+		border:none;
+		font-size:16px;
+		background-color:inherit;
+		color:#fff;
+	}
+	span[data-notify="message"]{
+		padding:5px;
+		color:#fff;
+	}
+}
+div.msg-tip-err{
+	background-color:red;
+}

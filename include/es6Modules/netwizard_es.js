@@ -5,6 +5,7 @@ import Common from './common.js'
 import Base from './base.js'
 import Check from './check.js'
 import SaveData from './saveData.js'
+import Message from './message.js'
 
 const copyProperties = function(target, source) {
     for (let key of Reflect.ownKeys(source)) {
@@ -22,7 +23,7 @@ const mix = function(...mixins) {
     }
     return Mix
 }
-class Netwizard extends mix(Create, Animate, Common, SaveData, Base,Check) {
+class Netwizard extends mix(Create, Animate, Common, SaveData, Base,Check,Message) {
     constructor(opt) {
         super()
         this.url = opt.get('url') || '/cgi-bin/netwizard_new.cgi'

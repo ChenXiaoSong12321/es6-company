@@ -1259,13 +1259,13 @@ table {
     padding: 0px;
     margin: 0px;
     border: 0px;
-    list-style-type: disc;
+    list-style-type: decimal;
     list-style-position: outside;
     line-height: 16px;
     min-height: 16px;
     /* font-size: 11px;
     */
-    margin-left: 10px;
+    margin-left: 18px;
 }
 .notes {
     color: #439224;

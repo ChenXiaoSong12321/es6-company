@@ -189,7 +189,8 @@ class Base {
     checkForm(form_name){
         let errorItems = this.checkOption.get('errorItems').get(form_name).size
         if (errorItems !== 0) {
-            alert('填写有误，请检查')
+            alert('您输入的表单有误，请检查！')
+            // this.showErrorMsg('您输入的表单有误，请检查！',form_name)
             return false
         }else{
             return true
